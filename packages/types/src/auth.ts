@@ -1,10 +1,5 @@
-import type { Branch } from "./branch";
-
-export interface User {
-  id: string;
-  email: string;
-  name: string;
+export interface AuthUser {
+  userId: string;
   role: string;
   branchId?: string;
-  branch?: Branch;
 }

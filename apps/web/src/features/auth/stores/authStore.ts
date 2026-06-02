@@ -21,20 +21,26 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isLoading: false,
-
   isInitialized: false,
+
   login: async (email, password) => {
     set({ isLoading: true });
+
     try {
       await api.post("/auth/login", { email, password });
-      // The access and refresh tokens are already set in cookies by the server
-      // Then fetch user profile
+
       const userRes = await api.get("/auth/me");
+
       set({ user: userRes.data.user, isInitialized: true });
+    } catch (error) {
+      set({ user: null, isInitialized: true });
+
+      throw error;
     } finally {
       set({ isLoading: false });
     }
   },
+
   logout: async () => {
     try {
       await api.post("/auth/logout");

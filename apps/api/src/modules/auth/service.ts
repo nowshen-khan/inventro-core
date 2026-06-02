@@ -10,8 +10,7 @@ import { LoginInput } from "./schema";
 
 export class AuthService {
   async login(data: LoginInput) {
-    const email = data.email;
-    const password = data.password;
+    const { email, password } = data;
     const user = await authRepository.findUserByEmail(email);
 
     if (!user || !user.password) {

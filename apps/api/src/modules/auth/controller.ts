@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { AuthService } from "./service";
 import { prisma } from "@/core/database/prisma";
+import { loginSchema } from "./schema";
 
 const service = new AuthService();
 
@@ -14,22 +15,23 @@ export class AuthController {
   }
 
   async login(req: FastifyRequest, reply: FastifyReply) {
-    const { email, password } = req.body as any;
-    const tokens = await service.login(email, password);
+    const body = loginSchema.parse(req.body);
+    const result = await service.login(body);
+
     reply
-      .setCookie("accessToken", tokens.accessToken, {
+      .setCookie("accessToken", result.accessToken, {
         httpOnly: true,
         path: "/",
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
       })
-      .setCookie("refreshToken", tokens.refreshToken, {
+      .setCookie("refreshToken", result.refreshToken, {
         httpOnly: true,
         path: "/",
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
       })
-      .send({ message: "Login successful" });
+      .send({ user: result.user });
   }
 
   async refresh(req: FastifyRequest, reply: FastifyReply) {

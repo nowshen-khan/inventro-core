@@ -1,11 +1,16 @@
 import "fastify";
+import type { FastifyReply, FastifyRequest } from "fastify";
+import type { AuthUser } from "@repo/types/auth";
 
 declare module "fastify" {
   interface FastifyRequest {
-    user?: any;
+    user: AuthUser;
   }
 
   interface FastifyInstance {
-    authenticate: any;
+    authenticate: (
+      request: FastifyRequest,
+      reply: FastifyReply,
+    ) => Promise<void>;
   }
 }

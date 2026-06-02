@@ -22,26 +22,3 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   return <>{children}</>;
 }
-
-import { usePermissions } from "@/features/auth/hooks/usePermissions";
-import type { ReactNode } from "react";
-
-export function PermissionGate({
-  required,
-  children,
-  fallback = null,
-}: {
-  required: string | string[];
-  children: ReactNode;
-  fallback?: ReactNode;
-}) {
-  const { data: permissions } = usePermissions();
-
-  if (!permissions) return fallback;
-
-  const reqArr = Array.isArray(required) ? required : [required];
-
-  const allowed = reqArr.every((p) => permissions.includes(p));
-
-  return allowed ? children : fallback;
-}

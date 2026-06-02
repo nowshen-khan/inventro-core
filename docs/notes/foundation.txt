@@ -1,0 +1,14 @@
+purchase
+→ stock increase
+
+sale
+→ stock decrease
+
+transfer
+→ warehouse movement
+
+adjustment
+→ manual correction
+
+return
+→ reverse stock movement
