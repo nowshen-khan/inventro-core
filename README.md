@@ -180,7 +180,3 @@ pnpm --filter api prisma db seed
 - Shared schemas and types
 - Clean domain separation
 - Easy long-term maintenance
-
-```
-
-```
