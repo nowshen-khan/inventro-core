@@ -1,0 +1,73 @@
+import { FastifyRequest, FastifyReply } from "fastify";
+import { AuthService } from "./service";
+import { prisma } from "@/core/database/prisma";
+
+const service = new AuthService();
+
+export class AuthController {
+  async permissions(req: FastifyRequest, reply: FastifyReply) {
+    const role = await prisma.role.findUniqueOrThrow({
+      where: { name: req.user.role as any },
+      include: { permissions: true },
+    });
+    reply.send(role.permissions.map((p) => p.action));
+  }
+
+  async login(req: FastifyRequest, reply: FastifyReply) {
+    const { email, password } = req.body as any;
+    const tokens = await service.login(email, password);
+    reply
+      .setCookie("accessToken", tokens.accessToken, {
+        httpOnly: true,
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+      })
+      .setCookie("refreshToken", tokens.refreshToken, {
+        httpOnly: true,
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+      })
+      .send({ message: "Login successful" });
+  }
+
+  async refresh(req: FastifyRequest, reply: FastifyReply) {
+    const oldRefreshToken = req.cookies?.refreshToken;
+
+    if (!oldRefreshToken) {
+      return reply.status(401).send({ message: "Missing refresh token" });
+    }
+
+    const tokens = await service.refresh(oldRefreshToken);
+
+    reply
+      .setCookie("accessToken", tokens.accessToken, {
+        httpOnly: true,
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+      })
+      .setCookie("refreshToken", tokens.refreshToken, {
+        httpOnly: true,
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+      })
+      .send({ message: "Token refreshed" });
+  }
+
+  async me(req: FastifyRequest, reply: FastifyReply) {
+    console.log("REQ USER:", req.user);
+    const user = await service.getMe(req.user.userId);
+    return reply.send({ user });
+  }
+
+  async logout(req: FastifyRequest, reply: FastifyReply) {
+    await service.logout(req.user.userId);
+    reply
+      .clearCookie("accessToken")
+      .clearCookie("refreshToken")
+      .send({ message: "Logged out" });
+  }
+}

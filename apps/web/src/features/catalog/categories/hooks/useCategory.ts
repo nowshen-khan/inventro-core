@@ -1,0 +1,15 @@
+import { useQuery } from "@tanstack/react-query";
+
+import api from "@/shared/api/client.api";
+
+export const useCategories = () => {
+  return useQuery({
+    queryKey: ["categories"],
+
+    queryFn: async () => {
+      const res = await api.get("/categories");
+
+      return res.data;
+    },
+  });
+};

@@ -1,0 +1,7 @@
+{
+    "editor.wordWrap": "on",
+    "editor.formatOnPaste": false,
+    "js/ts.updateImportsOnFileMove.enabled": "always",
+    "js/ts.tsdk.path": "node_modules\\typescript\\lib",
+
+}

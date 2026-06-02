@@ -1,0 +1,42 @@
+{
+  "name": "@repo/schemas",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./auth": "./src/auth.schema.ts",
+    "./branch": "./src/branch.schema.ts",
+    "./warehouse": "./src/warehouse.schema.ts",
+    "./category": "./src/category.schema.ts",
+    "./brand": "./src/brand.schema.ts",
+    "./supplier": "./src/supplier.schema.ts",
+    "./customer": "./src/customer.schema.ts",
+    "./user": "./src/user.schema.ts",
+    "./product": "./src/product.schema.ts",
+    "./purchase": "./src/purchase.schema.ts",
+    "./sale": "./src/sale.schema.ts",
+    "./transfer": "./src/transfer.schema.ts",
+    "./expense": "./src/expense.schema.ts",
+    "./stock-query": "./src/stock-query.schema.ts",
+    "./stock-adjustment": "./src/stock-adjustment.schema.ts",
+    "./product-exchange":"./src/product-exchange.schema.ts",
+    "./purchase-return":"./src/purchase-return.schema.ts",
+    "./role":"./src/role.schema.ts",
+    "./sale-return":"./src/sale-return.schema.ts"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "check-types": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "zod": "^4.4.3"
+  },
+  "devDependencies": { "@repo/eslint-config": "workspace:*", "@repo/typescript-config": "workspace:*", "@types/node": "^22.15.3", "typescript": "5.9.2" }
+}
