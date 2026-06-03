@@ -3,15 +3,12 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-
 import type {
   ColumnDef,
   SortingState,
   PaginationState,
 } from "@tanstack/react-table";
-
 import { ArrowUp, ArrowDown } from "lucide-react";
-
 import { Button } from "./ui/button";
 import {
   Table,
@@ -105,14 +102,13 @@ export function DataTable<T>({
             ))
           ) : (
             <TableRow>
-              {" "}
               <TableCell
                 colSpan={columns.length}
                 className="h-32 text-center text-slate-500"
               >
                 {" "}
                 No data found{" "}
-              </TableCell>{" "}
+              </TableCell>
             </TableRow>
           )}
         </TableBody>

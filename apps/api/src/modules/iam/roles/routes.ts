@@ -2,7 +2,7 @@ import { FastifyInstance } from "fastify";
 import { RoleController } from "./controller";
 import { authorize } from "@/core/middleware/authorize";
 import { validate } from "@/core/middleware/validate";
-import { createRoleSchema } from "./schema";
+import { createRoleSchema, updateRoleSchema } from "./schema";
 
 export async function roleRoutes(app: FastifyInstance) {
   const ctrl = new RoleController();
@@ -14,6 +14,10 @@ export async function roleRoutes(app: FastifyInstance) {
     { preHandler: [authorize("role:create"), validate(createRoleSchema)] },
     ctrl.create,
   );
-  app.put("/:id", { preHandler: [authorize("role:update")] }, ctrl.update);
+  app.put(
+    "/:id",
+    { preHandler: [authorize("role:update"), validate(updateRoleSchema)] },
+    ctrl.update,
+  );
   app.delete("/:id", { preHandler: authorize("role:delete") }, ctrl.delete);
 }

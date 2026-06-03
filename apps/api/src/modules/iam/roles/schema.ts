@@ -1,1 +1,3 @@
-export { createRoleSchema } from "@repo/schemas/role";
+export { createRoleSchema, updateRoleSchema } from "@repo/schemas/role";
+
+export type { CreateRoleInput, UpdateRoleInput } from "@repo/schemas/role";

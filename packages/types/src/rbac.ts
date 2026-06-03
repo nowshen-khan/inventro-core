@@ -3,10 +3,14 @@ export interface Permission {
   action: string;
 }
 
+export interface RolePermission {
+  permission: Permission;
+}
+
 export interface Role {
   id: string;
   name: string;
-  permissions?: Permission[];
+  permissions?: RolePermission[];
 }
 
 export interface RoleFilters {
@@ -17,7 +21,7 @@ export interface RoleFilters {
 
 export interface CreateRolePayload {
   name: string;
-  permissions: string[];
+  permissions?: string[];
 }
 
 export interface UpdateRolePayload {

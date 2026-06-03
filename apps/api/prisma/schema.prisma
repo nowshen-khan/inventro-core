@@ -13,15 +13,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum RoleName {
-  SUPER_ADMIN
-  ADMIN
-  MANAGER
-  WAREHOUSE_MANAGER
-  CASHIER
-  STAFF
-}
-
 enum MovementType {
   PURCHASE
   SALE
@@ -62,23 +53,34 @@ model User {
 }
 
 model Role {
-  id          String       @id @default(uuid())
-  name        RoleName     @unique
-  permissions Permission[]
+  id          String           @id @default(uuid())
+  name        String           @unique
+  permissions RolePermission[]
   users       User[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
   deletedAt   DateTime?
 }
 
 model Permission {
-  id        String    @id @default(uuid())
-  action    String // e.g., "product:create", "inventory:view"
-  roleId    String
-  role      Role      @relation(fields: [roleId], references: [id])
+  id     String @id @default(uuid())
+  action String @unique
+
+  roles RolePermission[]
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
   deletedAt DateTime?
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+
+  role       Role       @relation(fields: [roleId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+
+  @@id([roleId, permissionId])
 }
 
 model Branch {
@@ -358,6 +360,7 @@ model Purchase {
 enum PurchaseStatus {
   PENDING
   RECEIVED
+  PERCIAL_RECEIVED
   CANCELLED
 }
 

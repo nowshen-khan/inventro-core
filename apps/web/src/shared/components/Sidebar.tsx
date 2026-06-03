@@ -120,25 +120,22 @@ const allNavItems: NavItem[] = [
 export function Sidebar() {
   const { data: permissions } = usePermissions();
 
+  // for Production
+  // const filteredItems = !permissions
+  //   ? []
+  //   : allNavItems.filter(
+  //       (item) => !item.permission || permissions.includes(item.permission),
+  //     );
+
   // dev
   const filteredItems =
-    permissions && permissions.length > 0
-      ? allNavItems.filter(
-          (item) => item.permission && permissions.includes(item.permission),
-        )
-      : allNavItems;
+    !permissions || permissions.length === 0
+      ? allNavItems
+      : allNavItems.filter(
+          (item) => !item.permission || permissions.includes(item.permission),
+        );
 
-  // final
-  // const filteredItems =
-  //   !permissions
-  //     ? allNavItems
-  //     : allNavItems.filter(
-  //         (item) =>
-  //           !item.permission ||
-  //           permissions.includes(
-  //             item.permission,
-  //           ),
-  //       );
+  console.log(permissions);
 
   return (
     <aside className="  border-r bg-[#0f172a] text-white lg:flex lg:flex-col  shrink-0">

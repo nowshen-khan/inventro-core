@@ -47,6 +47,9 @@ importers:
       '@prisma/client':
         specifier: 6.16.2
         version: 6.16.2(prisma@6.16.2(typescript@6.0.3))(typescript@6.0.3)
+      '@repo/permissions':
+        specifier: workspace:*
+        version: link:../../packages/permissions
       '@repo/schemas':
         specifier: workspace:*
         version: link:../../packages/schemas

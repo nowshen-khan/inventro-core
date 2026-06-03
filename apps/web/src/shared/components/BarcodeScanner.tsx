@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { BrowserMultiFormatReader } from "@zxing/library";
 
 export function BarcodeScanner({
@@ -12,6 +12,8 @@ export function BarcodeScanner({
   const readerRef = useRef<BrowserMultiFormatReader>();
 
   useEffect(() => {
+    if (!videoRef.current) return;
+
     const reader = new BrowserMultiFormatReader();
     readerRef.current = reader;
     reader.decodeFromVideoDevice(null, videoRef.current!, (result, err) => {

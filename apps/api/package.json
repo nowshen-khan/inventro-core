@@ -6,8 +6,8 @@
   "description": "",
   "main": "index.js",
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
-  },
+  "seed": "tsx prisma/seed.ts"
+},
   "scripts": {
     "dev": "tsx watch --tsconfig tsconfig.json src/server.ts",
     "build": "tsup src/server.ts --format esm --dts",
@@ -25,6 +25,7 @@
     "@fastify/rate-limit": "^10.3.0",
     "@fastify/sensible": "^6.0.4",
     "@prisma/client": "6.16.2",
+    "@repo/permissions": "workspace:*",
     "@repo/schemas": "workspace:*",
     "@repo/types": "workspace:*",
     "@repo/ui": "workspace:*",

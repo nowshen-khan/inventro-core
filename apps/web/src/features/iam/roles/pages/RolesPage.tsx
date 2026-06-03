@@ -1,5 +1,7 @@
-import { ALL_PERMISSIONS } from "@repo/permissions";
 import { useState } from "react";
+import type { ColumnDef, PaginationState } from "@tanstack/react-table";
+import { ALL_PERMISSIONS } from "@repo/permissions";
+import type { Role, UpdateRolePayload } from "@repo/types/rbac";
 import { useRoles } from "../hooks/useRoles";
 import {
   useCreateRole,
@@ -17,34 +19,40 @@ import {
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
-import type { ColumnDef } from "@tanstack/react-table";
-
-const columns: ColumnDef<any>[] = [
-  { accessorKey: "name", header: "Role" },
-  {
-    id: "actions",
-    cell: ({ row }) => (
-      <Button variant="ghost" onClick={() => handleEdit(row.original)}>
-        Edit
-      </Button>
-    ),
-  },
-];
 
 export default function RolesPage() {
-  const { data: roles, isLoading } = useRoles();
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+  const { data } = useRoles({
+    page: pagination.pageIndex + 1,
+    limit: pagination.pageSize,
+  });
   const createRole = useCreateRole();
   const updateRole = useUpdateRole();
   const deleteRole = useDeleteRole();
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState<any>(null);
+  const [selected, setSelected] = useState<Role | null>(null);
   const [name, setName] = useState("");
   const [perms, setPerms] = useState<string[]>([]);
 
-  const handleEdit = (role: any) => {
+  const columns: ColumnDef<Role>[] = [
+    { accessorKey: "name", header: "Role" },
+    {
+      id: "actions",
+      cell: ({ row }) => (
+        <Button variant="ghost" onClick={() => handleEdit(row.original)}>
+          Edit
+        </Button>
+      ),
+    },
+  ];
+
+  const handleEdit = (role: Role) => {
     setSelected(role);
     setName(role.name);
-    setPerms(role.permissions.map((p: any) => p.action));
+    setPerms(role.permissions.map((p) => p.permission.action) || []);
     setOpen(true);
   };
 
@@ -56,9 +64,12 @@ export default function RolesPage() {
   };
 
   const submit = () => {
-    const payload = { name, permissions: perms };
-    if (selected) updateRole.mutate({ id: selected.id, ...payload });
-    else createRole.mutate(payload);
+    const payload: UpdateRolePayload = { name, permissions: perms };
+    if (selected) {
+      updateRole.mutate({ id: selected.id, data: payload });
+    } else {
+      createRole.mutate(payload);
+    }
     setOpen(false);
   };
 
@@ -70,9 +81,9 @@ export default function RolesPage() {
       </div>
       <DataTable
         columns={columns}
-        data={roles || []}
+        data={data?.items || []}
         pagination={pagination}
-        pageCount={pageCount}
+        pageCount={data?.meta.totalPages || 1}
         onPaginationChange={setPagination}
       />
       <Dialog open={open} onOpenChange={setOpen}>
@@ -84,6 +95,7 @@ export default function RolesPage() {
             <Label>Role Name</Label>
             <Input value={name} onChange={(e) => setName(e.target.value)} />
           </div>
+
           <div className="max-h-60 overflow-y-auto space-y-2 mt-4">
             {ALL_PERMISSIONS.map((p) => (
               <div key={p} className="flex items-center gap-2">
@@ -101,6 +113,7 @@ export default function RolesPage() {
               </div>
             ))}
           </div>
+
           <div className="flex justify-end gap-2 mt-4">
             {selected && (
               <Button

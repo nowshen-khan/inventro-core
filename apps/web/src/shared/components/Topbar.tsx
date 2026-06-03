@@ -45,10 +45,7 @@ export function Topbar() {
         <div className="hidden text-right sm:block">
           <p className="max-w-[140px] truncate font-semibold"> {user?.name} </p>
 
-          <p className="text-sm text-slate-500">
-            {" "}
-            {typeof user?.role === "string" ? user.role : user?.role?.name}
-          </p>
+          <p className="text-sm text-slate-500">{user?.role}</p>
         </div>
 
         <Button
