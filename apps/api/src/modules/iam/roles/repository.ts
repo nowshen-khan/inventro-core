@@ -4,11 +4,13 @@ import type { RoleFilters } from "@repo/types/rbac";
 
 export const roleRepository = {
   findAll: async (filters?: RoleFilters) => {
-    const page = filters?.page || 1;
-    const limit = filters?.limit || 10;
+    const page = Number(filters?.page) || 1;
+    const limit = Number(filters?.limit) || 10;
     const skip = (page - 1) * limit;
 
     const where = {
+      deletedAt: null,
+
       ...(filters?.search && {
         name: {
           contains: filters.search,
@@ -20,6 +22,7 @@ export const roleRepository = {
     const [items, total] = await Promise.all([
       prisma.role.findMany({
         where,
+
         include: {
           permissions: {
             include: {
@@ -52,7 +55,7 @@ export const roleRepository = {
 
   findById: (id: string) =>
     prisma.role.findFirstOrThrow({
-      where: { id },
+      where: { id, deletedAt: null },
       include: { permissions: { include: { permission: true } } },
     }),
   create: (data: CreateRoleInput) =>
@@ -61,7 +64,7 @@ export const roleRepository = {
         name: data.name,
         permissions: data.permissions
           ? {
-              create: data.permissions.map((action: string) => ({
+              create: data.permissions.map((action) => ({
                 permission: { connect: { action } },
               })),
             }
@@ -75,15 +78,17 @@ export const roleRepository = {
         },
       },
     }),
-  update: (id: string, data: UpdateRoleInput) =>
-    prisma.role.update({
+  update: async (id: string, data: UpdateRoleInput) => {
+    await prisma.role.findFirstOrThrow({ where: { id, deletedAt: null } });
+
+    return prisma.role.update({
       where: { id },
       data: {
         name: data.name,
         permissions: data.permissions
           ? {
               deleteMany: {},
-              create: data.permissions.map((action: string) => ({
+              create: data.permissions.map((action) => ({
                 permission: {
                   connect: { action },
                 },
@@ -98,12 +103,20 @@ export const roleRepository = {
           },
         },
       },
-    }),
-  softDelete: (id: string) =>
-    prisma.role.update({
-      where: { id, deletedAt: null },
+    });
+  },
+  softDelete: async (id: string) => {
+    await prisma.role.findFirstOrThrow({
+      where: {
+        id,
+        deletedAt: null,
+      },
+    });
+    return prisma.role.update({
+      where: { id },
       data: {
         deletedAt: new Date(),
       },
-    }),
+    });
+  },
 };

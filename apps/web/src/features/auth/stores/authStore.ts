@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import api from "@/shared/api/client.api";
+import { loginApi, logoutApi, getMe } from "@/features/auth/api/auth.api";
 
 interface User {
   id: string;
@@ -27,9 +27,9 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true });
 
     try {
-      await api.post("/auth/login", { email, password });
-      const userRes = await api.get("/auth/me");
-      set({ user: userRes.data.user, isInitialized: true });
+      await loginApi(email, password);
+      const user = await getMe();
+      set({ user, isInitialized: true });
     } catch (error) {
       set({ user: null, isInitialized: true });
       throw error;
@@ -40,12 +40,13 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   logout: async () => {
     try {
-      await api.post("/auth/logout");
+      await logoutApi();
     } catch {
     } finally {
       set({ user: null, isInitialized: true });
     }
   },
+
   fetchUser: async () => {
     const state = useAuthStore.getState();
 
@@ -55,8 +56,8 @@ export const useAuthStore = create<AuthState>((set) => ({
 
     try {
       set({ isLoading: true });
-      const res = await api.get("/auth/me");
-      set({ user: res.data.user, isInitialized: true });
+      const user = await getMe();
+      set({ user, isInitialized: true });
     } catch {
       set({ user: null, isInitialized: true });
     } finally {

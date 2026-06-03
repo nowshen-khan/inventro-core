@@ -1,9 +1,14 @@
 import { Bell, Search, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
+import { Menu } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/shared/components/ui/sheet";
+import { Button } from "../ui/button";
 import { useAuthStore } from "@/features/auth/stores/authStore";
+import { SidebarContent } from "./SidebarContent";
 
 export function Topbar() {
   const navigate = useNavigate();
@@ -23,8 +28,24 @@ export function Topbar() {
   };
 
   return (
-    <header className="flex flex-col gap-4 border-b bg-white px-4 py-4  md:flex-row md:items-center md:justify-between md:px-6 dark:border-slate-800 dark:bg-slate-900">
-      <div className="flex w-full items-center gap-3 rounded-xl border  bg-slate-50  dark:border-slate-700 px-4 py-2 dark:bg-slate-800 md:max-w-md">
+    <header className="flex items-center justify-between border-b bg-white px-4 py-3 ">
+      {/* Hambarger Menu */}
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button variant="ghost" size="icon" className="lg:hidden">
+            <Menu className="h-5 w-5" />
+          </Button>
+        </SheetTrigger>
+
+        <SheetContent
+          side="left"
+          className="w-[85vw] max-w-[300px] border-none  bg-[#020617] p-0 text-white"
+        >
+          <SidebarContent mobile />
+        </SheetContent>
+      </Sheet>
+
+      <div className="hidden md:flex md:max-w-md md:flex-1 items-center gap-3 rounded-xl border bg-slate-50 px-4 py-2">
         <Search size={18} className="text-slate-500" />
 
         <input
@@ -42,20 +63,23 @@ export function Topbar() {
           <Bell size={20} />
         </Button>
 
-        <div className="hidden text-right sm:block">
-          <p className="max-w-[140px] truncate font-semibold"> {user?.name} </p>
+        <div className=" text-right ">
+          <p className="max-w-[120px] truncate text-sm font-semibold">
+            {user?.name}
+          </p>
 
-          <p className="text-sm text-slate-500">{user?.role}</p>
+          <p className="text-xs  text-slate-500">{user?.role}</p>
         </div>
 
         <Button
           onClick={handleLogout}
           variant="destructive"
+          size="sm"
           className="flex items-center gap-2"
         >
           <LogOut size={16} />
 
-          <span className="hidden sm:inline">Logout</span>
+          <span className="hidden xl:inline">Logout</span>
         </Button>
       </div>
     </header>

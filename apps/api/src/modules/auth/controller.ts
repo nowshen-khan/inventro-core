@@ -9,9 +9,18 @@ export class AuthController {
   async permissions(req: FastifyRequest, reply: FastifyReply) {
     const role = await prisma.role.findUniqueOrThrow({
       where: { name: req.user.role as any },
-      include: { permissions: true },
+      include: {
+        permissions: {
+          include: {
+            permission: true,
+          },
+        },
+      },
     });
-    reply.send(role.permissions.map((p) => p.action));
+
+    const permissions = role.permissions.map((p) => p.permission.action);
+
+    reply.send(permissions);
   }
 
   async login(req: FastifyRequest, reply: FastifyReply) {
@@ -60,7 +69,7 @@ export class AuthController {
   }
 
   async me(req: FastifyRequest, reply: FastifyReply) {
-    console.log("REQ USER:", req.user);
+    // console.log("REQ USER:", req.user);
     const user = await service.getMe(req.user.userId);
     return reply.send({ user });
   }

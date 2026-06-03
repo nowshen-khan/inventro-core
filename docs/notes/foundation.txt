@@ -12,3 +12,9 @@ adjustment
 
 return
 → reverse stock movement
+
+1. Collapsible Sidebar (260px → 80px)
+2. Dark Theme Support
+3. Command Palette (Ctrl + K)
+4. Notification Dropdown
+5. Global Search

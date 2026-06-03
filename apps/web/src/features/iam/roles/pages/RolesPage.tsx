@@ -1,7 +1,11 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import type { ColumnDef, PaginationState } from "@tanstack/react-table";
 import { ALL_PERMISSIONS } from "@repo/permissions";
-import type { Role, UpdateRolePayload } from "@repo/types/rbac";
+import type {
+  CreateRolePayload,
+  Role,
+  UpdateRolePayload,
+} from "@repo/types/rbac";
 import { useRoles } from "../hooks/useRoles";
 import {
   useCreateRole,
@@ -52,24 +56,46 @@ export default function RolesPage() {
   const handleEdit = (role: Role) => {
     setSelected(role);
     setName(role.name);
-    setPerms(role.permissions.map((p) => p.permission.action) || []);
+    setPerms(role.permissions?.map((p) => p.permission.action) || []);
     setOpen(true);
+  };
+
+  const resetForm = () => {
+    setSelected(null);
+    setName("");
+    setPerms([]);
   };
 
   const handleNew = () => {
     setSelected(null);
     setName("");
     setPerms([]);
+    resetForm();
     setOpen(true);
   };
 
+  const isSubmitting = createRole.isPending || updateRole.isPending;
+
   const submit = () => {
-    const payload: UpdateRolePayload = { name, permissions: perms };
     if (selected) {
-      updateRole.mutate({ id: selected.id, data: payload });
+      const payload: UpdateRolePayload = {
+        name,
+        permissions: perms,
+      };
+
+      updateRole.mutate({
+        id: selected.id,
+        data: payload,
+      });
     } else {
+      const payload: CreateRolePayload = {
+        name,
+        permissions: perms,
+      };
+
       createRole.mutate(payload);
     }
+    resetForm();
     setOpen(false);
   };
 
@@ -118,12 +144,15 @@ export default function RolesPage() {
             {selected && (
               <Button
                 variant="destructive"
+                disabled={deleteRole.isPending}
                 onClick={() => deleteRole.mutate(selected.id)}
               >
-                Delete
+                {deleteRole.isPending ? "Deleting..." : "Delete"}
               </Button>
             )}
-            <Button onClick={submit}>Save</Button>
+            <Button onClick={submit} disabled={isSubmitting}>
+              {isSubmitting ? "Saving..." : "Save"}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
