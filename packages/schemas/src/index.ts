@@ -17,3 +17,4 @@ export * from "./product-exchange.schema";
 export * from "./purchase-return.schema";
 export * from "./role.schema";
 export * from "./sale-return.schema";
+export * from "./pagination.schema";

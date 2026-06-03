@@ -12,3 +12,4 @@ export * from "./user";
 export * from "./enums";
 export * from "./api";
 export * from "./pagination";
+export * from "./dashboard";

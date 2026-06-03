@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/shared/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
@@ -6,14 +6,19 @@ import { useAuthStore } from "../stores/authStore";
 
 export default function LoginPage() {
   const navigate = useNavigate();
-
   const login = useAuthStore((s) => s.login);
-
+  const user = useAuthStore((s) => s.user);
   const [email, setEmail] = useState("admin@erp.com");
-
   const [password, setPassword] = useState("admin123");
-
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      navigate("/", {
+        replace: true,
+      });
+    }
+  }, [user, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

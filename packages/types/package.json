@@ -10,7 +10,7 @@
      ".": "./src/index.ts",
      "./auth": "./src/auth.ts", "./branch": "./src/branch.ts", "./warehouse": "./src/warehouse.ts", "./common": "./src/common.ts", "./product": "./src/product.ts", "./inventory": "./src/inventory.ts", "./sales": "./src/sales.ts", "./purchases": "./src/purchases.ts", "./transfers": "./src/transfers.ts", "./enums": "./src/enums.ts","./rbac": "./src/rbac.ts", "./user":"./src/user.ts", 
      "./api":"./src/api.ts",
-     "./pagination":"./src/pagination.ts"
+     "./pagination":"./src/pagination.ts", "./dashboard":"./src/dashboard.ts"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",

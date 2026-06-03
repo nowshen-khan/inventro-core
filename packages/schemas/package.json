@@ -26,7 +26,8 @@
     "./product-exchange":"./src/product-exchange.schema.ts",
     "./purchase-return":"./src/purchase-return.schema.ts",
     "./role":"./src/role.schema.ts",
-    "./sale-return":"./src/sale-return.schema.ts"
+    "./sale-return":"./src/sale-return.schema.ts",
+    "./pagination":"./src/pagination.schema.ts"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",

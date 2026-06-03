@@ -28,13 +28,10 @@ export const useAuthStore = create<AuthState>((set) => ({
 
     try {
       await api.post("/auth/login", { email, password });
-
       const userRes = await api.get("/auth/me");
-
       set({ user: userRes.data.user, isInitialized: true });
     } catch (error) {
       set({ user: null, isInitialized: true });
-
       throw error;
     } finally {
       set({ isLoading: false });
@@ -50,11 +47,20 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
   fetchUser: async () => {
+    const state = useAuthStore.getState();
+
+    if (state.isLoading) {
+      return;
+    }
+
     try {
+      set({ isLoading: true });
       const res = await api.get("/auth/me");
       set({ user: res.data.user, isInitialized: true });
     } catch {
       set({ user: null, isInitialized: true });
+    } finally {
+      set({ isLoading: false });
     }
   },
 }));

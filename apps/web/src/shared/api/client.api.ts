@@ -21,8 +21,6 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // const isRefreshRequest = originalRequest.url?.includes("/auth/refresh");
-
     const isAuthRoute =
       originalRequest.url?.includes("/auth/login") ||
       originalRequest.url?.includes("/auth/refresh") ||
@@ -46,8 +44,6 @@ api.interceptors.response.use(
           user: null,
           isInitialized: true,
         });
-
-        window.location.href = "/login";
 
         return Promise.reject(refreshError);
       }

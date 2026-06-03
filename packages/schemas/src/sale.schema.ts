@@ -22,3 +22,7 @@ export const createSaleSchema = z.object({
     .enum(["CASH", "CARD", "BANK_TRANSFER", "MOBILE_BANKING"])
     .optional(),
 });
+
+export type SaleItemInput = z.infer<typeof saleItemSchema>;
+
+export type CreateSaleInput = z.infer<typeof createSaleSchema>;

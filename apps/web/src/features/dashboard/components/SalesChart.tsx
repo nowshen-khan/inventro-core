@@ -7,13 +7,10 @@ import {
   Tooltip,
   CartesianGrid,
 } from "recharts";
+import type { SalesChartData } from "@repo/types/dashboard";
 
 interface Props {
-  data: {
-    name: string;
-
-    sales: number;
-  }[];
+  data: SalesChartData[];
 }
 
 export function SalesChart({ data }: Props) {
@@ -25,11 +22,16 @@ export function SalesChart({ data }: Props) {
 
           <XAxis dataKey="name" />
 
-          <YAxis />
+          <YAxis tickFormatter={(v) => `৳${v}`} />
 
-          <Tooltip />
+          <Tooltip formatter={(value) => [`৳${value}`, "Sales"]} />
 
-          <Line type="monotone" dataKey="sales" strokeWidth={3} />
+          <Line
+            type="monotone"
+            dataKey="sales"
+            strokeWidth={3}
+            isAnimationActive={false}
+          />
         </LineChart>
       </ResponsiveContainer>
     </div>

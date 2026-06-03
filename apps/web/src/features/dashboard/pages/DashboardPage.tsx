@@ -16,41 +16,31 @@ export default function DashboardPage() {
   const stats = [
     {
       title: "Today Sales",
-
       value: `৳${data?.todaySales || 0}`,
-
       icon: DollarSign,
     },
 
     {
       title: "Monthly Sales",
-
       value: `৳${data?.monthlySales || 0}`,
-
       icon: ShoppingCart,
     },
 
     {
       title: "Today Purchases",
-
       value: `৳${data?.todayPurchases || 0}`,
-
       icon: Package,
     },
 
     {
       title: "Products",
-
       value: data?.totalProducts || 0,
-
       icon: Package,
     },
 
     {
       title: "Customers",
-
       value: data?.totalCustomers || 0,
-
       icon: Users,
     },
   ];
