@@ -1,10 +1,10 @@
 import { useForm } from "react-hook-form";
-
 import { Button } from "@/shared/components/ui/button";
+import type { Supplier, CreateSupplierDto } from "@repo/types/supplier";
 
 interface Props {
-  defaultValues?: any;
-  onSubmit: (values: any) => void;
+  defaultValues?: Partial<Supplier>;
+  onSubmit: (values: CreateSupplierDto) => void;
   isLoading?: boolean;
 }
 

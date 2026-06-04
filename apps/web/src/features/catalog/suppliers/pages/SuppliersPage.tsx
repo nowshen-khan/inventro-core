@@ -14,6 +14,7 @@ import { useCreateSupplier } from "../hooks/useCreateSupplier";
 import { useUpdateSupplier } from "../hooks/useUpdateSupplier";
 import { useDeleteSupplier } from "../hooks/useDeleteSupplier";
 import { useSuppliers } from "../hooks/useSuppliers";
+import type { Supplier, CreateSupplierDto } from "@repo/types/supplier";
 
 export default function SuppliersPage() {
   const { data, isLoading } = useSuppliers();
@@ -23,13 +24,15 @@ export default function SuppliersPage() {
   const createMutation = useCreateSupplier();
   const [editOpen, setEditOpen] = useState(false);
 
-  const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
+  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(
+    null,
+  );
 
   const updateMutation = useUpdateSupplier();
 
   const deleteMutation = useDeleteSupplier();
 
-  const handleCreate = async (values: any) => {
+  const handleCreate = async (values: CreateSupplierDto) => {
     try {
       await createMutation.mutateAsync(values);
 
@@ -39,7 +42,7 @@ export default function SuppliersPage() {
     }
   };
 
-  const handleUpdate = async (values: any) => {
+  const handleUpdate = async (values: CreateSupplierDto) => {
     try {
       await updateMutation.mutateAsync({
         id: selectedSupplier.id,
@@ -113,7 +116,7 @@ export default function SuppliersPage() {
           </thead>
 
           <tbody>
-            {data?.map((supplier: any) => (
+            {data?.map((supplier: Supplier) => (
               <tr key={supplier.id} className="border-b">
                 <td className="p-3 whitespace-nowrap">{supplier.name}</td>
 

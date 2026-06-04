@@ -2,7 +2,7 @@ import { supplierRepository as repo } from "./repository";
 
 export class SupplierService {
   async getAll(filters?: any) {
-    return repo.findAll(filters);
+    return repo.findAll(filters || {});
   }
 
   async getById(id: string) {

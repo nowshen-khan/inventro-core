@@ -1,11 +1,37 @@
 import { prisma } from "@/core/database/prisma";
 
 export const supplierRepository = {
-  findAll: () =>
+  findAll: ({
+    search,
+    page = 1,
+    limit = 10,
+  }: {
+    search?: string;
+    page?: number;
+    limit?: number;
+  }) =>
     prisma.supplier.findMany({
       where: {
         deletedAt: null,
+
+        ...(search && {
+          OR: [
+            {
+              name: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+            {
+              phone: {
+                contains: search,
+              },
+            },
+          ],
+        }),
       },
+      skip: (page - 1) * limit,
+      take: limit,
       orderBy: { name: "asc" },
     }),
 
