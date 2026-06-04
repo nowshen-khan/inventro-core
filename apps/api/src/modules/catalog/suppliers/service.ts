@@ -1,7 +1,12 @@
 import { supplierRepository as repo } from "./repository";
+import type {
+  SupplierFilters,
+  CreateSupplierDto,
+  UpdateSupplierDto,
+} from "@repo/types/supplier";
 
 export class SupplierService {
-  async getAll(filters?: any) {
+  async getAll(filters?: SupplierFilters) {
     return repo.findAll(filters || {});
   }
 
@@ -9,11 +14,11 @@ export class SupplierService {
     return repo.findById(id);
   }
 
-  async create(data: any) {
+  async create(data: CreateSupplierDto) {
     return repo.create(data);
   }
 
-  async update(id: string, data: any) {
+  async update(id: string, data: UpdateSupplierDto) {
     await repo.findById(id);
 
     return repo.update(id, data);

@@ -1,8 +1,7 @@
-import { Pencil, Trash2, Plus } from "lucide-react";
-import { useUpdateCategory } from "../hooks/useUpdateCategory";
-import { useDeleteCategory } from "../hooks/useDeleteCategory";
 import { useState } from "react";
+import { Pencil, Trash2, Plus } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
+import { DataTable } from "@/shared/components/DataTable";
 import {
   Dialog,
   DialogContent,
@@ -10,10 +9,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/shared/components/ui/dialog";
+import { useUpdateCategory } from "../hooks/useUpdateCategory";
+import { useDeleteCategory } from "../hooks/useDeleteCategory";
 import { useCategories } from "../hooks/useCategories";
 import { useCreateCategory } from "../hooks/useCreateCategory";
 import { CategoryForm } from "../components/CategoryForm";
-import { DataTable } from "@/shared/components/DataTable";
 import type {
   Category,
   CreateCategoryPayload,

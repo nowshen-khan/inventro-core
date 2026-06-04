@@ -1,40 +1,58 @@
 import { prisma } from "@/core/database/prisma";
+import { SupplierFilters } from "@repo/types/supplier";
 
 export const supplierRepository = {
-  findAll: ({
-    search,
-    page = 1,
-    limit = 10,
-  }: {
-    search?: string;
-    page?: number;
-    limit?: number;
-  }) =>
-    prisma.supplier.findMany({
-      where: {
-        deletedAt: null,
+  findAll: async (filters?: SupplierFilters) => {
+    const page = Number(filters?.page) || 1;
+    const limit = Number(filters?.limit) || 10;
+    const skip = (page - 1) * limit;
 
-        ...(search && {
-          OR: [
-            {
-              name: {
-                contains: search,
-                mode: "insensitive",
-              },
+    const where = {
+      deletedAt: null,
+
+      ...(filters?.search && {
+        OR: [
+          {
+            name: {
+              contains: filters.search,
+              mode: "insensitive",
             },
-            {
-              phone: {
-                contains: search,
-              },
+          },
+          {
+            phone: {
+              contains: filters.search,
             },
-          ],
-        }),
+          },
+        ],
+      }),
+    };
+
+    const [items, total] = await Promise.all([
+      prisma.supplier.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: {
+          name: "asc",
+        },
+      }),
+
+      prisma.supplier.count({
+        where,
+      }),
+    ]);
+
+    return {
+      items,
+
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
       },
-      skip: (page - 1) * limit,
-      take: limit,
-      orderBy: { name: "asc" },
-    }),
-
+    };
+  },
   findById: (id: string) =>
     prisma.supplier.findFirstOrThrow({
       where: {

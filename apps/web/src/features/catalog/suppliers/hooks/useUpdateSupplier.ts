@@ -1,6 +1,6 @@
-import { useMutation } from "@tanstack/react-query";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateSupplier } from "../api/suppliers.api";
+import type { UpdateSupplierDto } from "@repo/types/supplier";
 
 export const useUpdateSupplier = () => {
   const qc = useQueryClient();
@@ -12,7 +12,7 @@ export const useUpdateSupplier = () => {
     }: {
       id: string;
 
-      data: any;
+      data: UpdateSupplierDto;
     }) => updateSupplier(id, data),
 
     onSuccess: () => {
