@@ -1,11 +1,14 @@
 import { useForm } from "react-hook-form";
-
 import { Button } from "@/shared/components/ui/button";
+import type {
+  CreateCategoryPayload,
+  UpdateCategoryPayload,
+} from "@repo/types/common";
 
 interface Props {
-  defaultValues?: any;
+  defaultValues?: UpdateCategoryPayload;
 
-  onSubmit: (values: any) => void;
+  onSubmit: (values: CreateCategoryPayload | UpdateCategoryPayload) => void;
 
   isLoading?: boolean;
 }
@@ -35,6 +38,14 @@ export function CategoryForm({
         <label className="mb-2 block text-sm font-medium">Category Name</label>
 
         <input {...register("name")} className="w-full rounded-lg border p-3" />
+      </div>
+      <div>
+        <label className="mb-2 block text-sm font-medium">Description</label>
+
+        <textarea
+          {...register("description")}
+          className="w-full rounded-lg border p-3"
+        />
       </div>
 
       <Button type="submit" disabled={isLoading}>

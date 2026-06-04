@@ -1,4 +1,4 @@
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Plus } from "lucide-react";
 import { useUpdateCategory } from "../hooks/useUpdateCategory";
 import { useDeleteCategory } from "../hooks/useDeleteCategory";
 import { useState } from "react";
@@ -13,22 +13,36 @@ import {
 import { useCategories } from "../hooks/useCategories";
 import { useCreateCategory } from "../hooks/useCreateCategory";
 import { CategoryForm } from "../components/CategoryForm";
+import { DataTable } from "@/shared/components/DataTable";
+import type {
+  Category,
+  CreateCategoryPayload,
+  UpdateCategoryPayload,
+} from "@repo/types/common";
+
+import type { ColumnDef, PaginationState } from "@tanstack/react-table";
 
 export default function CategoriesPage() {
-  const { data, isLoading } = useCategories();
-
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
   const [open, setOpen] = useState(false);
-
   const createMutation = useCreateCategory();
   const [editOpen, setEditOpen] = useState(false);
 
-  const [selectedCategory, setSelectedCategory] = useState<any>(null);
-
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null,
+  );
   const updateMutation = useUpdateCategory();
-
   const deleteMutation = useDeleteCategory();
 
-  const handleCreate = async (values: any) => {
+  const { data, isLoading } = useCategories({
+    page: pagination.pageIndex + 1,
+    limit: pagination.pageSize,
+  });
+
+  const handleCreate = async (values: CreateCategoryPayload) => {
     try {
       await createMutation.mutateAsync(values);
 
@@ -38,8 +52,10 @@ export default function CategoriesPage() {
     }
   };
 
-  const handleUpdate = async (values: any) => {
+  const handleUpdate = async (values: UpdateCategoryPayload) => {
     try {
+      if (!selectedCategory) return;
+
       await updateMutation.mutateAsync({
         id: selectedCategory.id,
 
@@ -67,72 +83,93 @@ export default function CategoriesPage() {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="rounded-2xl bg-white p-6">Loading categories...</div>
+    );
   }
+
+  const columns: ColumnDef<Category>[] = [
+    {
+      accessorKey: "name",
+      header: "Category",
+    },
+
+    {
+      accessorKey: "description",
+      header: "Description",
+      cell: ({ row }) => (
+        <span className="text-slate-500">
+          {row.original.description || "-"}
+        </span>
+      ),
+    },
+
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <div className="flex justify-center gap-2">
+          <Button
+            size="icon"
+            variant="outline"
+            onClick={() => {
+              setSelectedCategory(row.original);
+              setEditOpen(true);
+            }}
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+
+          <Button
+            size="icon"
+            variant="destructive"
+            onClick={() => handleDelete(row.original.id)}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div className="w-full rounded-2xl bg-white p-6 shadow-sm">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Categories</h1>
+      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Categories</h1>
+          <p className="text-sm text-slate-500">Manage product categories</p>
+        </div>
 
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button>Add Category</Button>
-          </DialogTrigger>
+        <div className="flex gap-3">
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button className="gap-2">
+                <Plus size={16} />
+                Add Category
+              </Button>
+            </DialogTrigger>
 
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create Category</DialogTitle>
-            </DialogHeader>
+            <DialogContent className="sm:max-w-lg">
+              <DialogHeader>
+                <DialogTitle>Create Category</DialogTitle>
+              </DialogHeader>
 
-            <CategoryForm
-              onSubmit={handleCreate}
-              isLoading={createMutation.isPending}
-            />
-          </DialogContent>
-        </Dialog>
+              <CategoryForm
+                onSubmit={handleCreate}
+                isLoading={createMutation.isPending}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
       <div className="overflow-x-auto">
-        <table className="min-w-full border-collapse">
-          <thead>
-            <tr className="border-b text-left">
-              <th className="p-3">Name</th>
-
-              <th className="p-3">Actions</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {data?.map((category: any) => (
-              <tr key={category.id} className="border-b">
-                <td className="p-3">{category.name}</td>
-                <td className="p-3">
-                  <div className="flex gap-2">
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      onClick={() => {
-                        setSelectedCategory(category);
-
-                        setEditOpen(true);
-                      }}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-
-                    <Button
-                      size="icon"
-                      variant="destructive"
-                      onClick={() => handleDelete(category.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <DataTable
+          columns={columns}
+          data={data?.items || []}
+          pagination={pagination}
+          pageCount={data?.meta?.totalPages || 1}
+          onPaginationChange={setPagination}
+        />
       </div>
 
       <Dialog open={editOpen} onOpenChange={setEditOpen}>

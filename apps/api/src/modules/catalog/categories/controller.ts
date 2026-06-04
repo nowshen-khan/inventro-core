@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-
+import type { CreateCategoryInput, UpdateCategoryInput } from "./schema";
 import { CategoryService } from "./service";
 
 const service = new CategoryService();
@@ -18,13 +18,17 @@ export class CategoryController {
     reply.send(await service.getById(req.params.id));
   }
 
-  async create(req: FastifyRequest, reply: FastifyReply) {
+  async create(
+    req: FastifyRequest<{ Body: CreateCategoryInput }>,
+    reply: FastifyReply,
+  ) {
     reply.status(201).send(await service.create(req.body));
   }
 
   async update(
     req: FastifyRequest<{
       Params: { id: string };
+      Body: UpdateCategoryInput;
     }>,
     reply: FastifyReply,
   ) {
