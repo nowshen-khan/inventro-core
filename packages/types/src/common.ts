@@ -23,12 +23,23 @@ export interface UpdateCategoryPayload {
 export interface Brand {
   id: string;
   name: string;
+  description?: string | null;
 }
 
 export interface BrandFilters {
   search?: string;
   page?: number;
   limit?: number;
+}
+
+export interface CreateBrandPayload {
+  name: string;
+  description?: string;
+}
+
+export interface UpdateBrandPayload {
+  name?: string;
+  description?: string;
 }
 
 export interface Customer {

@@ -220,8 +220,8 @@ model ProductExchange {
 }
 
 model Category {
-  id       String    @id @default(uuid())
-  name     String    @unique
+  id   String @id @default(uuid())
+  name String @unique
 
   description String?
 
@@ -233,12 +233,14 @@ model Category {
 }
 
 model Brand {
-  id       String    @id @default(uuid())
-  name     String    @unique
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String?
+
   products Product[]
 
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now()) @updatedAt
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 }
 

@@ -58,7 +58,6 @@ export default function CategoriesPage() {
 
       await updateMutation.mutateAsync({
         id: selectedCategory.id,
-
         data: values,
       });
 
