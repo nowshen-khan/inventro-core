@@ -1,6 +1,6 @@
 import type { Category } from "./common";
 import type { Brand } from "./common";
-import type { Supplier } from "./common";
+import type { Supplier } from "./supplier";
 
 export interface Product {
   id: string;

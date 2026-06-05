@@ -1,11 +1,18 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 
 import { CustomerService } from "./service";
+import { CreateCustomerInput, UpdateCustomerInput } from "./schema";
+import { CustomerFilters } from "@repo/types/common";
 
 const service = new CustomerService();
 
 export class CustomerController {
-  async getAll(req: FastifyRequest, reply: FastifyReply) {
+  async getAll(
+    req: FastifyRequest<{
+      Querystring: CustomerFilters;
+    }>,
+    reply: FastifyReply,
+  ) {
     reply.send(await service.getAll(req.query));
   }
 
@@ -18,13 +25,17 @@ export class CustomerController {
     reply.send(await service.getById(req.params.id));
   }
 
-  async create(req: FastifyRequest, reply: FastifyReply) {
+  async create(
+    req: FastifyRequest<{ Body: CreateCustomerInput }>,
+    reply: FastifyReply,
+  ) {
     reply.status(201).send(await service.create(req.body));
   }
 
   async update(
     req: FastifyRequest<{
       Params: { id: string };
+      Body: UpdateCustomerInput;
     }>,
     reply: FastifyReply,
   ) {

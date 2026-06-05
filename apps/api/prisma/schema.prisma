@@ -88,7 +88,7 @@ model Branch {
   name       String
   code       String      @unique
   address    String?
-  phone      String?
+  phone      String?      @unique
   warehouses Warehouse[]
   users      User[]
 
@@ -248,7 +248,7 @@ model Supplier {
   id        String     @id @default(uuid())
   name      String
   email     String?    @unique
-  phone     String?
+  phone     String?     @unique
   address   String?
   products  Product[]
   purchases Purchase[]
@@ -263,10 +263,13 @@ model Supplier {
 model Customer {
   id              String            @id @default(uuid())
   name            String
-  email           String?
-  phone           String?
+  email           String?           @unique
+  phone           String?           @unique
   address         String?
+  
   sales           Sale[]
+  lastPurchaseAt DateTime?
+
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   deletedAt       DateTime?

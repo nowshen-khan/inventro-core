@@ -45,9 +45,12 @@ export interface UpdateBrandPayload {
 export interface Customer {
   id: string;
   name: string;
-  email?: string;
-  phone?: string;
-  address?: string;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CustomerFilters {
@@ -55,4 +58,18 @@ export interface CustomerFilters {
   branchId?: string;
   page?: number;
   limit?: number;
+}
+
+export interface CreateCustomerPayload {
+  name: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+}
+
+export interface UpdateCustomerPayload {
+  name?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
 }

@@ -19,11 +19,17 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { usePermissions } from "@/features/auth/hooks/usePermissions";
 import { cn } from "@/shared/lib/utils"; // shadcn utility
-import { useState } from "react";
 
 type Props = {
   mobile?: boolean;
   collapsed?: boolean;
+};
+
+type NavItem = {
+  to: string;
+  label: string;
+  icon: LucideIcon;
+  permission?: string;
 };
 
 const allNavItems: NavItem[] = [

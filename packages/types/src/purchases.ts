@@ -1,4 +1,4 @@
-import type { Supplier } from "./common";
+import type { Supplier } from "./supplier";
 import type { Branch } from "./branch";
 import type { ProductVariant } from "./product";
 

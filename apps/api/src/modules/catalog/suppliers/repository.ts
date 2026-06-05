@@ -86,6 +86,9 @@ export const supplierRepository = {
         email: supplier.email
           ? `${supplier.email}_deleted_${Date.now()}`
           : null,
+        phone: supplier.phone
+          ? `${supplier.phone}_deleted_${Date.now()}`
+          : null,
       },
     });
   },

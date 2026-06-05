@@ -1,16 +1,9 @@
 import { ChevronRight, ChevronLeft } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+
 import { usePermissions } from "@/features/auth/hooks/usePermissions";
 import { SidebarContent } from "./SidebarContent";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "../ui/button";
-
-type NavItem = {
-  to: string;
-  label: string;
-  icon: LucideIcon;
-  permission?: string;
-};
 
 type SidebarProps = {
   collapsed: boolean;
