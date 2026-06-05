@@ -7,7 +7,10 @@ import { Link } from "react-router-dom";
 const columns: ColumnDef<any>[] = [
   { accessorKey: "name", header: "Name" },
   { accessorKey: "code", header: "Code" },
-  { accessorKey: "branch.name", header: "Branch" },
+  {
+    header: "Branch",
+    cell: ({ row }) => row.original.branch?.name,
+  },
   {
     id: "actions",
     cell: ({ row }) => (
@@ -19,6 +22,11 @@ const columns: ColumnDef<any>[] = [
         </Link>
       </div>
     ),
+  },
+  {
+    accessorKey: "createdAt",
+    header: "Created",
+    cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString(),
   },
 ];
 

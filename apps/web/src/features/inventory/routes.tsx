@@ -8,10 +8,14 @@ import BranchesPage from "@/features/settings/branches/pages/BranchesPage";
 import CategoriesPage from "@/features/catalog/categories/pages/CategoriesPage";
 import BrandsPage from "@/features/catalog/brands/pages/BrandsPage";
 import SuppliersPage from "@/features/catalog/suppliers/pages/SuppliersPage";
+import WarehouseFormPage from "./warehouses/pages/WarehouseFormPage";
+import EditWarehousePage from "./warehouses/pages/EditWarehousePage";
 
 export const inventoryRoutes = [
   { path: "inventory", element: <StockPage /> },
   { path: "warehouses", element: <WarehousesPage /> },
+  { path: "warehouses/new", element: <WarehouseFormPage /> },
+  { path: "warehouses/:id/edit", element: <EditWarehousePage /> },
   { path: "branches", element: <BranchesPage /> },
   { path: "categories", element: <CategoriesPage /> },
   { path: "brands", element: <BrandsPage /> },

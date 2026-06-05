@@ -138,3 +138,36 @@ stock value
 ```
 
 Because now your ERP finally has enough transactional data to make analytics meaningful.
+
+
+Backend Modules
+1. Auth
+2. Branches
+3. Calalog (brands, categories, products, suppliers )
+4. Commerce (product-exchange, purchase-return, purchases, sale-return, sales)
+5. Crm (Customer)
+6. DASHBOARD
+7. Finance (Expense)
+8. Iam (Roles, Users)
+9. Inventory (Stock, stock-adjustment, transfers, warehouses)
+10. reports
+
+
+
+Frontend Modules
+1. Auth
+2. Catalog (brands, categories, products, suppliers)
+3. Commerce (product-exchange, purchase-return, purchases, sale-return, sales)
+5. Crm (Customer)
+6. DASHBOARD
+7. Finance (Expense)
+8. Iam (Roles, Users)
+9. Inventory (Stock, stock-adjustment, transfers, warehouses)
+10. reports
+11. Settings
+
+Frontend and Backend Checking COMPLETED
+1. auth
+2. brands, categories, suppliers
+3. Customers
+4. Roles
