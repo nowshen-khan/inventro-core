@@ -1,6 +1,6 @@
 export * from "./auth.schema";
 export * from "./branch.schema";
-export * from "./warehouse.schema";
+export * from "./location.schema";
 export * from "./category.schema";
 export * from "./brand.schema";
 export * from "./supplier.schema";

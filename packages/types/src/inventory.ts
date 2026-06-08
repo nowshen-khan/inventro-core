@@ -1,5 +1,5 @@
 import type { ProductVariant } from "./product";
-import type { Warehouse } from "./warehouse";
+import type { Warehouse } from "./location";
 
 export interface Stock {
   id: string;

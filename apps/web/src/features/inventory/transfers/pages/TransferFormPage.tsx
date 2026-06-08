@@ -4,7 +4,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { posSearchProducts } from "@/features/catalog/products/api/products.api";
 import { useCreateTransfer } from "@/features/inventory/transfers/hooks/useCreateTransfer";
-import { useWarehouses } from "@/features/inventory/warehouses/hooks/useWarehouses";
+import { useWarehouses } from "@/features/inventory/locations/hooks/useLocations";
 import { useNavigate } from "react-router-dom";
 
 export default function TransferFormPage() {

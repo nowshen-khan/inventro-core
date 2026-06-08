@@ -1,9 +1,9 @@
 import { prisma } from "@/core/database/prisma";
-import type { UpdateWarehouseInput, CreateWarehouseInput } from "./schema";
-import type { WarehouseFilters } from "@repo/types/warehouse";
+import type { UpdateLocationInput, CreateLocationInput } from "./schema";
+import type { LocationFilters } from "@repo/types/location";
 
-export const warehouseRepository = {
-  findAll: async (filters: WarehouseFilters) => {
+export const locationRepository = {
+  findAll: async (filters: LocationFilters) => {
     const page = Number(filters?.page) || 1;
     const limit = Number(filters?.limit) || 10;
     const skip = (page - 1) * limit;
@@ -11,8 +11,8 @@ export const warehouseRepository = {
     const where = {
       deletedAt: null,
 
-      ...(filters?.branchId && {
-        branchId: filters.branchId,
+      ...(filters?.type && {
+        type: filters.type,
       }),
 
       ...(filters?.search && {
@@ -34,9 +34,8 @@ export const warehouseRepository = {
     };
 
     const [items, total] = await Promise.all([
-      prisma.warehouse.findMany({
+      prisma.location.findMany({
         where,
-        include: { branch: true },
         skip,
         take: limit,
         orderBy: {
@@ -44,7 +43,7 @@ export const warehouseRepository = {
         },
       }),
 
-      prisma.warehouse.count({
+      prisma.location.count({
         where,
       }),
     ]);
@@ -62,26 +61,25 @@ export const warehouseRepository = {
   },
 
   findById: (id: string) =>
-    prisma.warehouse.findFirstOrThrow({
+    prisma.location.findFirstOrThrow({
       where: { id, deletedAt: null },
-      include: { branch: true },
     }),
 
-  create: (data: CreateWarehouseInput) => prisma.warehouse.create({ data }),
+  create: (data: CreateLocationInput) => prisma.location.create({ data }),
 
-  update: (id: string, data: UpdateWarehouseInput) =>
-    prisma.warehouse.update({ where: { id }, data }),
+  update: (id: string, data: UpdateLocationInput) =>
+    prisma.location.update({ where: { id }, data }),
 
   softDelete: async (id: string) => {
-    const warehouse = await prisma.warehouse.findUniqueOrThrow({
+    const location = await prisma.location.findUniqueOrThrow({
       where: { id },
     });
 
-    return prisma.warehouse.update({
+    return prisma.location.update({
       where: { id },
       data: {
         deletedAt: new Date(),
-        code: `${warehouse.code}_deleted_${Date.now()}`,
+        code: `${location.code}_deleted_${Date.now()}`,
       },
     });
   },

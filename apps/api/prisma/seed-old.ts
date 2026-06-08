@@ -21,10 +21,10 @@ async function main() {
     "branch:update",
     "branch:delete",
 
-    "warehouse:view",
-    "warehouse:create",
-    "warehouse:update",
-    "warehouse:delete",
+    "location:view",
+    "location:create",
+    "location:update",
+    "location:delete",
 
     "product:view",
     "product:create",
@@ -94,7 +94,7 @@ async function main() {
   const managerPerms = [
     "branch:view",
 
-    "warehouse:view",
+    "location:view",
 
     "product:view",
 

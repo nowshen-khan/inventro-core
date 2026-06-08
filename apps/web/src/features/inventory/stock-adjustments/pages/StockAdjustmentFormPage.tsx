@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Card, CardContent } from "@/shared/components/ui/card";
-import { useWarehouses } from "@/features/inventory/warehouses/hooks/useWarehouses";
+import { useWarehouses } from "@/features/inventory/locations/hooks/useLocations";
 import { posSearchProducts } from "@/features/catalog/products/api/products.api";
 import { useCreateStockAdjustment } from "@/features/inventory/stock-adjustments/hooks/useCreateStockAdjustment";
 

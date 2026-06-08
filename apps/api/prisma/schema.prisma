@@ -39,9 +39,13 @@ model User {
   name         String
   roleId       String
   role         Role    @relation(fields: [roleId], references: [id])
-  branchId     String?
-  branch       Branch? @relation(fields: [branchId], references: [id])
-  refreshToken String?
+locationId String?
+
+location Location?
+  @relation(fields: [locationId], references: [id])
+
+
+refreshToken String?
 
   auditLogs AuditLog[]
 
@@ -83,45 +87,56 @@ model RolePermission {
   @@id([roleId, permissionId])
 }
 
-model Branch {
-  id         String      @id @default(uuid())
-  name       String
-  code       String      @unique
-  address    String?
-  phone      String?      @unique
-  warehouses Warehouse[]
-  users      User[]
 
-  purchases Purchase[]
-
-  purchaseReturns PurchaseReturn[]
-
-  sales    Sale[]
-  expenses Expense[]
-
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  deletedAt       DateTime?
-  SaleReturn      SaleReturn[]
-  ProductExchange ProductExchange[]
+enum LocationType {
+  WAREHOUSE
+  OUTLET
+  TRANSIT
 }
 
-model Warehouse {
-  id               String            @id @default(uuid())
-  name             String
-  code             String            @unique
-  
-  branchId         String
-  branch           Branch            @relation(fields: [branchId], references: [id])
-  stocks           Stock[]
+model Location {
+  id        String   @id @default(uuid())
+
+  name      String
+  code      String   @unique
+
+  type      LocationType
+
+  address   String?
+
+  isActive  Boolean  @default(true)
+ parentId String?
+
+  parent Location? @relation("LocationHierarchy", fields: [parentId], references: [id])
+
+  children Location[] @relation("LocationHierarchy")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+   users User[]
+
+  purchases Purchase[]
+  purchaseReturns PurchaseReturn[]
+
+  sales Sale[]
+  saleReturns SaleReturn[]
+
+  expenses Expense[]
+
+  productExchanges ProductExchange[]
+
   stockAdjustments StockAdjustment[]
+
+  stocks Stock[]
 
   sourceTransfers Transfer[] @relation("source")
   destTransfers   Transfer[] @relation("dest")
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+
+    @@index([type])
+  @@index([deletedAt])
 }
 
 model Product {
@@ -207,8 +222,10 @@ model ProductExchange {
   customerId String?
   customer   Customer? @relation(fields: [customerId], references: [id])
 
-  branchId String
-  branch   Branch @relation(fields: [branchId], references: [id])
+locationId String
+
+location Location
+  @relation(fields: [locationId], references: [id])
 
   exchangeAmount Float @default(0)
 
@@ -270,6 +287,7 @@ model Customer {
   
   sales           Sale[]
   lastPurchaseAt DateTime?
+totalSpent Decimal @default(0)
 
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
@@ -284,8 +302,8 @@ model Stock {
   productVariantId String
   variant          ProductVariant @relation(fields: [productVariantId], references: [id])
 
-  warehouseId String
-  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+ locationId String
+location Location
 
   quantity Int @default(0)
 
@@ -295,7 +313,7 @@ model Stock {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  @@unique([productVariantId, warehouseId])
+  @@unique([productVariantId, locationId])
 }
 
 model StockMovement {
@@ -313,14 +331,25 @@ model StockMovement {
   deletedAt DateTime?
 }
 
+enum AdjustmentReason {
+  DAMAGE
+  MISSING
+  FOUND
+  PHYSICAL_COUNT
+  SAMPLE
+}
+
 model StockAdjustment {
   id String @id @default(uuid())
 
   adjustmentNo String @unique
 
-  warehouseId String
-  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+locationId String
 
+location Location
+  @relation(fields: [locationId], references: [id])
+
+  reason AdjustmentReason
   note String?
 
   createdBy String
@@ -354,13 +383,17 @@ model Purchase {
 
   purchaseReturns PurchaseReturn[]
 
-  branchId    String
-  branch      Branch         @relation(fields: [branchId], references: [id])
+ locationId String
+
+location Location
+  @relation(fields: [locationId], references: [id])
+
   items       PurchaseItem[]
   totalAmount Decimal        @db.Money
   paidAmount  Decimal        @default(0) @db.Money
   dueDate     DateTime?
   status      PurchaseStatus @default(PENDING)
+  createdBy String?
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
   deletedAt   DateTime?
@@ -399,8 +432,8 @@ model PurchaseReturn {
   supplierId String
   supplier   Supplier @relation(fields: [supplierId], references: [id])
 
-  branchId String
-  branch   Branch @relation(fields: [branchId], references: [id])
+  locationId String
+  location   Location @relation(fields: [locationId], references: [id])
 
   totalAmount Decimal @db.Money
 
@@ -436,8 +469,12 @@ model PurchaseReturnItem {
 model Sale {
   id         String     @id @default(uuid())
   invoiceNo  String     @unique
-  branchId   String
-  branch     Branch     @relation(fields: [branchId], references: [id])
+
+  locationId String
+
+location Location
+  @relation(fields: [locationId], references: [id])
+  
   customerId String?
   customer   Customer?  @relation(fields: [customerId], references: [id])
   items      SaleItem[]
@@ -453,6 +490,7 @@ model Sale {
   paidAmount      Decimal           @default(0) @db.Money
   paymentMethod   String? // CASH, CARD, etc.
   status          SaleStatus        @default(COMPLETED)
+  createdBy String?
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   deletedAt       DateTime?
@@ -490,8 +528,8 @@ model SaleReturn {
   customerId String?
   customer   Customer? @relation(fields: [customerId], references: [id])
 
-  branchId String
-  branch   Branch @relation(fields: [branchId], references: [id])
+  locationId String
+  location   Location @relation(fields: [locationId], references: [id])
 
   totalAmount Float
 
@@ -527,12 +565,16 @@ model SaleReturnItem {
 model Transfer {
   id                String         @id @default(uuid())
   transferNo        String         @unique
-  sourceWarehouseId String
-  sourceWarehouse   Warehouse      @relation("source", fields: [sourceWarehouseId], references: [id])
-  destWarehouseId   String
-  destWarehouse     Warehouse      @relation("dest", fields: [destWarehouseId], references: [id])
+  sourceLocationId String
+ sourceLocation Location
+    @relation("source", fields: [sourceLocationId], references: [id])
+
+  destLocationId String
+   destLocation Location
+    @relation("dest", fields: [destLocationId], references: [id])
   items             TransferItem[]
   status            TransferStatus @default(PENDING)
+  note String?
   requestedBy       String?
   approvedBy        String?
   createdAt         DateTime       @default(now())
@@ -564,8 +606,12 @@ model Expense {
   id          String    @id @default(uuid())
   description String
   amount      Decimal   @db.Money
-  branchId    String?
-  branch      Branch?   @relation(fields: [branchId], references: [id])
+
+ locationId String?
+
+location Location?
+  @relation(fields: [locationId], references: [id])
+  
   date        DateTime  @default(now())
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt

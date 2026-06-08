@@ -3,19 +3,19 @@ import StockPage from "./stock/pages/StockPage";
 import StockAdjustmentsPage from "./stock-adjustments/pages/StockAdjustmentsPage";
 import StockAdjustmentFormPage from "./stock-adjustments/pages/StockAdjustmentFormPage";
 import StockAdjustmentDetailsPage from "./stock-adjustments/pages/StockAdjustmentDetailsPage";
-import WarehousesPage from "./warehouses/pages/WarehousesPage";
+import LocationsPage from "./locations/pages/LocationsPage";
 import BranchesPage from "@/features/settings/branches/pages/BranchesPage";
 import CategoriesPage from "@/features/catalog/categories/pages/CategoriesPage";
 import BrandsPage from "@/features/catalog/brands/pages/BrandsPage";
 import SuppliersPage from "@/features/catalog/suppliers/pages/SuppliersPage";
-import WarehouseFormPage from "./warehouses/pages/WarehouseFormPage";
-import EditWarehousePage from "./warehouses/pages/EditWarehousePage";
+import LocationFormPage from "./locations/pages/LocationFormPage";
+import EditLocationPage from "./locations/pages/EditLocationPage";
 
 export const inventoryRoutes = [
   { path: "inventory", element: <StockPage /> },
-  { path: "warehouses", element: <WarehousesPage /> },
-  { path: "warehouses/new", element: <WarehouseFormPage /> },
-  { path: "warehouses/:id/edit", element: <EditWarehousePage /> },
+  { path: "locations", element: <LocationsPage /> },
+  { path: "locations/new", element: <LocationFormPage /> },
+  { path: "locations/:id/edit", element: <EditLocationPage /> },
   { path: "branches", element: <BranchesPage /> },
   { path: "categories", element: <CategoriesPage /> },
   { path: "brands", element: <BrandsPage /> },

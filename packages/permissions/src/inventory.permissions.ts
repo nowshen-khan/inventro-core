@@ -6,9 +6,9 @@ export const INVENTORY_PERMISSIONS = [
   // Inventory
   "inventory:view",
 
-  // Warehouses
-  "warehouse:view",
-  "warehouse:create",
-  "warehouse:update",
-  "warehouse:delete",
+  // Locations
+  "location:view",
+  "location:create",
+  "location:update",
+  "location:delete",
 ] as const;

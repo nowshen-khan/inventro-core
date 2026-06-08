@@ -1,4 +1,4 @@
-import type { Warehouse } from "./warehouse";
+import type { Warehouse } from "./location";
 import type { ProductVariant } from "./product";
 
 export interface Transfer {

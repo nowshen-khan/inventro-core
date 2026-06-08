@@ -171,3 +171,12 @@ Frontend and Backend Checking COMPLETED
 2. brands, categories, suppliers
 3. Customers
 4. Roles
+
+
+
+Location Architecture Refactor
+
+- Replaced Warehouse with Location module
+- Added WAREHOUSE, OUTLET, TRANSIT types
+- Unified inventory movement architecture
+- Updated API, schema, permissions and frontend CRUD

@@ -10,7 +10,7 @@
     ".": "./src/index.ts",
     "./auth": "./src/auth.schema.ts",
     "./branch": "./src/branch.schema.ts",
-    "./warehouse": "./src/warehouse.schema.ts",
+    "./location": "./src/location.schema.ts",
     "./category": "./src/category.schema.ts",
     "./brand": "./src/brand.schema.ts",
     "./supplier": "./src/supplier.schema.ts",

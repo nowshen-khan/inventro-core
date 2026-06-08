@@ -64,7 +64,7 @@ packages/
 
 - Stock
 - Transfers
-- Warehouses
+- Location
 - Stock Adjustments
 
 ## Catalog

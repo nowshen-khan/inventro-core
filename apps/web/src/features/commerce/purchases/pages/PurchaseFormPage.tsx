@@ -6,7 +6,7 @@ import { useAuthStore } from "@/features/auth/stores/authStore";
 import { useCreatePurchase } from "../hooks/useCreatePurchase";
 import { useSuppliers } from "@/features/catalog/suppliers/hooks/useSuppliers";
 import { useProducts } from "@/features/catalog/products/hooks/useProducts";
-import { useWarehouses } from "@/features/inventory/warehouses/hooks/useWarehouses";
+import { useWarehouses } from "@/features/inventory/locations/hooks/useLocations";
 
 export default function PurchaseFormPage() {
   const navigate = useNavigate();
