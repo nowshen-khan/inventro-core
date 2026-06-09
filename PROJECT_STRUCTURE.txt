@@ -21,7 +21,6 @@
 │   │   │   ├── seed-old.ts
 │   │   │   ├── seed.ts
 │   │   │   └── seeds
-│   │   │       ├── branch.seed.ts
 │   │   │       ├── permissions.seed.ts
 │   │   │       ├── product.seed.ts
 │   │   │       ├── roles.seed.ts

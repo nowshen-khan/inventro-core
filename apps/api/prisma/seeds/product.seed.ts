@@ -90,7 +90,7 @@ export async function seedProduct() {
     });
   }
 
-  const warehouse = await prisma.warehouse.findFirstOrThrow({
+  const location = await prisma.location.findFirstOrThrow({
     where: {
       code: "MAIN-WH",
     },
@@ -99,9 +99,9 @@ export async function seedProduct() {
   for (const variant of product.variants) {
     await prisma.stock.upsert({
       where: {
-        productVariantId_warehouseId: {
+        productVariantId_locationId: {
           productVariantId: variant.id,
-          warehouseId: warehouse.id,
+          locationId: location.id,
         },
       },
 
@@ -109,7 +109,7 @@ export async function seedProduct() {
 
       create: {
         productVariantId: variant.id,
-        warehouseId: warehouse.id,
+        locationId: location.id,
         quantity: 50,
       },
     });

@@ -1,15 +1,16 @@
 import { seedPermissions } from "./seeds/permissions.seed";
 import { seedRoles } from "./seeds/roles.seed";
 import { seedSuperAdmin } from "./seeds/super-admin.seed";
-import { seedBranch } from "./seeds/branch.seed";
 import { seedProduct } from "./seeds/product.seed";
+import { seedLocations } from "./seeds/location.seed";
 
 async function main() {
   console.log("🌱 Seeding started...");
   await seedPermissions();
   await seedRoles();
   await seedSuperAdmin();
-  await seedBranch();
+  await seedLocations();
+
   await seedProduct();
 }
 
