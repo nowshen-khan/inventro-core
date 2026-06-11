@@ -4,11 +4,11 @@ import { Input } from "@/shared/components/ui/input";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { posSearchProducts } from "@/features/catalog/products/api/products.api";
 import { useCreateTransfer } from "@/features/inventory/transfers/hooks/useCreateTransfer";
-import { useWarehouses } from "@/features/inventory/locations/hooks/useLocations";
+import { useLocations } from "@/features/inventory/locations/hooks/useLocations";
 import { useNavigate } from "react-router-dom";
 
 export default function TransferFormPage() {
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState<any[]>([]);
 
   const [barcode, setBarcode] = useState("");
 
@@ -20,11 +20,66 @@ export default function TransferFormPage() {
 
   const createTransfer = useCreateTransfer();
 
-  const { data: warehouses } = useWarehouses();
+  const { data: locations } = useLocations();
+  const locationList = Array.isArray(locations)
+    ? locations
+    : locations?.items || [];
 
-  const [sourceWarehouseId, setSourceWarehouseId] = useState("");
+  const [sourceLocationId, setSourceLocationId] = useState("");
 
-  const [destWarehouseId, setDestWarehouseId] = useState("");
+  const [destLocationId, setDestLocationId] = useState("");
+
+  const [note, setNote] = useState("");
+  const [isBarcodeLoading, setIsBarcodeLoading] = useState(false);
+
+  const saveTransfer = (status: "DRAFT" | "PENDING") => {
+    if (!items.length) return;
+
+    if (sourceLocationId === destLocationId) {
+      alert("Source and destination location cannot be same");
+
+      return;
+    }
+
+    if (!sourceLocationId || !destLocationId) {
+      alert("Select locations");
+
+      return;
+    }
+
+    createTransfer.mutate(
+      {
+        sourceLocationId,
+
+        destLocationId,
+
+        status,
+
+        note,
+
+        items: items.map((item: any) => ({
+          productVariantId: item.productVariantId,
+
+          quantity: item.quantity,
+        })),
+      },
+
+      {
+        onSuccess: (transfer) => {
+          navigate(`/transfers/${transfer.id}`);
+        },
+      },
+    );
+  };
+
+  const getAvailableStock = (variant: any) => {
+    const sourceStock = variant?.stocks?.find(
+      (stock: any) => stock.locationId === sourceLocationId,
+    );
+
+    return Number(sourceStock?.quantity || 0) -
+      Number(sourceStock?.reservedQuantity || 0);
+  };
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -44,39 +99,38 @@ export default function TransferFormPage() {
     fetchProduct();
   }, [barcode]);
 
-  const handleAddItem = () => {
-    if (!product) return;
+  const addProductToTransfer = (selectedProduct: any, addQuantity: number) => {
+    const currentStock = getAvailableStock(selectedProduct);
 
-    const currentStock = Number(product?.stocks?.[0]?.quantity || 0);
-
-    if (quantity <= 0) {
+    if (addQuantity <= 0) {
       alert("Invalid quantity");
       return;
     }
 
-    if (quantity > currentStock) {
-      alert("Insufficient stock");
+    if (addQuantity > currentStock) {
+      alert("Insufficient available stock");
       return;
     }
 
     const existing = items.find(
-      (item: any) => item.productVariantId === product.id,
+      (item: any) => item.productVariantId === selectedProduct.id,
     );
 
     if (existing) {
-      const updatedQty = existing.quantity + quantity;
+      const updatedQty = existing.quantity + addQuantity;
 
       if (updatedQty > currentStock) {
-        alert("Stock exceeded");
+        alert("Available stock exceeded");
         return;
       }
 
       setItems(
         items.map((item: any) =>
-          item.productVariantId === product.id
+          item.productVariantId === selectedProduct.id
             ? {
                 ...item,
                 quantity: updatedQty,
+                availableQuantity: currentStock,
               }
             : item,
         ),
@@ -85,13 +139,14 @@ export default function TransferFormPage() {
       setItems([
         ...items,
         {
-          productVariantId: product.id,
-          barcode: product.barcode,
-          productName: product.product.name,
-          styleCode: product.product.styleCode,
-          color: product.color,
-          size: product.size,
-          quantity,
+          productVariantId: selectedProduct.id,
+          barcode: selectedProduct.barcode,
+          productName: selectedProduct.product.name,
+          styleCode: selectedProduct.product.styleCode,
+          color: selectedProduct.color,
+          size: selectedProduct.size,
+          quantity: addQuantity,
+          availableQuantity: currentStock,
         },
       ]);
     }
@@ -103,6 +158,39 @@ export default function TransferFormPage() {
     setTimeout(() => {
       barcodeRef.current?.focus();
     }, 100);
+  };
+
+  const handleAddItem = () => {
+    if (!product) return;
+
+    addProductToTransfer(product, quantity);
+  };
+
+  const handleBarcodeEnter = async () => {
+    if (!barcode.trim()) return;
+
+    if (!sourceLocationId) {
+      alert("Select source location first");
+      return;
+    }
+
+    setIsBarcodeLoading(true);
+
+    try {
+      const products = await posSearchProducts(barcode.trim());
+
+      if (!products?.length) {
+        alert("Product not found");
+        return;
+      }
+
+      addProductToTransfer(products[0], quantity || 1);
+    } catch (error) {
+      console.error(error);
+      alert("Product search failed");
+    } finally {
+      setIsBarcodeLoading(false);
+    }
   };
 
   return (
@@ -124,19 +212,19 @@ export default function TransferFormPage() {
 
             <div>
               <label className="mb-1 block text-sm font-medium">
-                From Warehouse
+                From Location
               </label>
 
               <select
                 className="w-full rounded-md border p-2"
-                value={sourceWarehouseId}
-                onChange={(e) => setSourceWarehouseId(e.target.value)}
+                value={sourceLocationId}
+                onChange={(e) => setSourceLocationId(e.target.value)}
               >
-                <option value="">Select Warehouse</option>
+                <option value="">Select Location</option>
 
-                {warehouses?.map((warehouse: any) => (
-                  <option key={warehouse.id} value={warehouse.id}>
-                    {warehouse.name}
+                {locationList.map((location: any) => (
+                  <option key={location.id} value={location.id}>
+                    {location.name}
                   </option>
                 ))}
               </select>
@@ -151,14 +239,14 @@ export default function TransferFormPage() {
 
               <select
                 className="w-full rounded-md border p-2"
-                value={destWarehouseId}
-                onChange={(e) => setDestWarehouseId(e.target.value)}
+                value={destLocationId}
+                onChange={(e) => setDestLocationId(e.target.value)}
               >
-                <option value="">Select Warehouse</option>
+                <option value="">Select Location</option>
 
-                {warehouses?.map((warehouse: any) => (
-                  <option key={warehouse.id} value={warehouse.id}>
-                    {warehouse.name}
+                {locationList.map((location: any) => (
+                  <option key={location.id} value={location.id}>
+                    {location.name}
                   </option>
                 ))}
               </select>
@@ -188,7 +276,7 @@ export default function TransferFormPage() {
                   if (e.key === "Enter") {
                     e.preventDefault();
 
-                    handleAddItem();
+                    handleBarcodeEnter();
                   }
                 }}
               />
@@ -218,7 +306,7 @@ export default function TransferFormPage() {
                 Current Stock
               </label>
 
-              <Input readOnly value={product?.stocks?.[0]?.quantity || 0} />
+              <Input readOnly value={product ? getAvailableStock(product) : 0} />
             </div>
 
             {/* QTY */}
@@ -235,57 +323,47 @@ export default function TransferFormPage() {
               />
             </div>
 
+            <div>
+              <label className="mb-1 block text-sm font-medium">Note</label>
+
+              <textarea
+                className="w-full rounded-md border p-2"
+                rows={3}
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+              />
+            </div>
+
             {/* ACTIONS */}
 
             <div className="flex flex-wrap gap-2 pt-4">
-              <Button onClick={handleAddItem}>Add</Button>
+              <Button onClick={handleAddItem} disabled={isBarcodeLoading}>
+                Add
+              </Button>
 
-              <Button variant="outline">Preview</Button>
+              <Button variant="outline" onClick={() => saveTransfer("DRAFT")}>
+                Save Draft
+              </Button>
 
               <Button
                 variant="secondary"
-                onClick={() => {
-                  if (!items.length) return;
-
-                  if (sourceWarehouseId === destWarehouseId) {
-                    alert("Source and destination warehouse cannot be same");
-
-                    return;
-                  }
-
-                  if (!sourceWarehouseId || !destWarehouseId) {
-                    alert("Select warehouses");
-
-                    return;
-                  }
-
-                  createTransfer.mutate(
-                    {
-                      transferNo: `TR-${Date.now()}`,
-
-                      sourceWarehouseId,
-
-                      destWarehouseId,
-
-                      items: items.map((item: any) => ({
-                        productVariantId: item.productVariantId,
-
-                        quantity: item.quantity,
-                      })),
-                    },
-
-                    {
-                      onSuccess: (transfer) => {
-                        navigate(`/transfers/${transfer.id}`);
-                      },
-                    },
-                  );
-                }}
+                onClick={() => saveTransfer("PENDING")}
               >
-                Save
+                Submit
               </Button>
 
-              <Button variant="destructive">Reset</Button>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  setItems([]);
+                  setBarcode("");
+                  setProduct(null);
+                  setQuantity(1);
+                  setNote("");
+                }}
+              >
+                Reset
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -328,6 +406,8 @@ export default function TransferFormPage() {
 
                     <th className="p-3 text-left">Qty</th>
 
+                    <th className="p-3 text-left">Available</th>
+
                     <th className="p-3 text-left">Action</th>
                   </tr>
                 </thead>
@@ -359,6 +439,8 @@ export default function TransferFormPage() {
                       <td className="p-3">{item.size}</td>
 
                       <td className="p-3">{item.quantity}</td>
+
+                      <td className="p-3">{item.availableQuantity}</td>
 
                       <td className="p-3">
                         <Button

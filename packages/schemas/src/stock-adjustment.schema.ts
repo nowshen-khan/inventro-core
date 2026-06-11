@@ -8,7 +8,7 @@ export const stockAdjustmentItemSchema = z.object({
 
 export const createStockAdjustmentSchema = z.object({
   adjustmentNo: z.string().min(1),
-  warehouseId: z.string().uuid(),
+  locationId: z.string().uuid(),
   note: z.string().optional(),
   items: z.array(stockAdjustmentItemSchema).min(1),
 });

@@ -67,7 +67,7 @@ export default function PointOfSale() {
     try {
       await createSale.mutateAsync({
         branchId: user?.branchId,
-        warehouseId: "WAREHOUSE_ID",
+        locationId: "LOCATION_ID",
         customerId: customerId || undefined,
         discount,
         tax: 0,

@@ -1,6 +1,6 @@
-import { inventoryRepository as repo } from "./repository";
+import { stockRepository as repo } from "./repository";
 
-export class InventoryQueryService {
+export class StockQueryService {
   async getStock(filters?: any) {
     return repo.findAllStock(filters);
   }

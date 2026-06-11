@@ -5,9 +5,7 @@ import { useNavigate } from "react-router-dom";
 import type { ColumnDef } from "@tanstack/react-table";
 
 import { DataTable } from "@/shared/components/DataTable";
-
 import { Button } from "@/shared/components/ui/button";
-
 import { useStockAdjustments } from "@/features/inventory/stock-adjustments/hooks/useStockAdjustments";
 
 export default function StockAdjustmentsPage() {
@@ -23,9 +21,9 @@ export default function StockAdjustmentsPage() {
     },
 
     {
-      accessorKey: "warehouse.name",
+      accessorKey: "location.name",
 
-      header: "Warehouse",
+      header: "Location",
     },
 
     {

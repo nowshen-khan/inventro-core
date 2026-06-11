@@ -8,6 +8,7 @@ export const transferRoutes = [
     path: "transfers/new",
     element: <TransferFormPage />,
   },
+  // TODO: Add "transfers/:id/edit" for editable DRAFT transfers.
   {
     path: "transfers/:id",
     element: <TransferDetailsPage />,

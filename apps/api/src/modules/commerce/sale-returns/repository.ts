@@ -8,8 +8,6 @@ export const saleReturnRepository = {
 
         customer: true,
 
-        branch: true,
-
         items: {
           include: {
             variant: {
@@ -36,8 +34,6 @@ export const saleReturnRepository = {
         sale: true,
 
         customer: true,
-
-        branch: true,
 
         items: {
           include: {

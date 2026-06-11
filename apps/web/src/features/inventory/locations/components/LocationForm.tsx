@@ -58,7 +58,7 @@ export function LocationForm({ defaultValues, onSubmit, isLoading }: Props) {
         <label className="mb-2 block text-sm font-medium">Location Type</label>
 
         <select {...register("type")} className="w-full rounded-lg border p-3">
-          <option value="WAREHOUSE">Warehouse</option>
+          <option value="LOCATION">Location</option>
           <option value="OUTLET">Outlet</option>
           <option value="TRANSIT">Transit</option>
         </select>

@@ -6,7 +6,7 @@ import { useAuthStore } from "@/features/auth/stores/authStore";
 import { useCreatePurchase } from "../hooks/useCreatePurchase";
 import { useSuppliers } from "@/features/catalog/suppliers/hooks/useSuppliers";
 import { useProducts } from "@/features/catalog/products/hooks/useProducts";
-import { useWarehouses } from "@/features/inventory/locations/hooks/useLocations";
+import { useLocations } from "@/features/inventory/locations/hooks/useLocations";
 
 export default function PurchaseFormPage() {
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ export default function PurchaseFormPage() {
 
       branchId: "",
 
-      warehouseId: "",
+      locationId: "",
 
       paidAmount: 0,
 
@@ -51,7 +51,7 @@ export default function PurchaseFormPage() {
     limit: 100,
   });
 
-  const { data: warehouses } = useWarehouses();
+  const { data: locations } = useLocations();
 
   const items = watch("items");
 
@@ -93,12 +93,12 @@ export default function PurchaseFormPage() {
           ))}
         </select>
 
-        <select {...register("warehouseId")} className="rounded-lg border p-3">
-          <option value="">Select Warehouse</option>
+        <select {...register("locationId")} className="rounded-lg border p-3">
+          <option value="">Select Location</option>
 
-          {warehouses?.map((warehouse: any) => (
-            <option key={warehouse.id} value={warehouse.id}>
-              {warehouse.name}
+          {locations?.map((location: any) => (
+            <option key={location.id} value={location.id}>
+              {location.name}
             </option>
           ))}
         </select>

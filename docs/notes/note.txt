@@ -12,7 +12,7 @@ You currently have:
 ✔ Purchases
 ✔ Inventory
 ✔ Stock movement
-✔ Warehouses
+✔ Locations
 ✔ Branches
 ✔ Purchase returns
 ✔ Sale returns
@@ -149,7 +149,7 @@ Backend Modules
 6. DASHBOARD
 7. Finance (Expense)
 8. Iam (Roles, Users)
-9. Inventory (Stock, stock-adjustment, transfers, warehouses)
+9. Inventory (Stock, stock-adjustment, transfers, locations)
 10. reports
 
 
@@ -162,7 +162,7 @@ Frontend Modules
 6. DASHBOARD
 7. Finance (Expense)
 8. Iam (Roles, Users)
-9. Inventory (Stock, stock-adjustment, transfers, warehouses)
+9. Inventory (Stock, stock-adjustment, transfers, locations)
 10. reports
 11. Settings
 

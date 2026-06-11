@@ -16,7 +16,7 @@ export class PurchaseService {
               1000 + Math.random() * 9000,
             )}`,
           supplierId: data.supplierId,
-          branchId: data.branchId,
+
           totalAmount: data.items.reduce(
             (sum: number, item: any) => sum + item.totalPrice,
             0,
@@ -29,12 +29,11 @@ export class PurchaseService {
       });
       // Increase stock for each item
       for (const item of data.items) {
-        // determine warehouse (in this case, a default receiving warehouse)
+        // determine location (in this case, a default receiving location)
         await this.inventoryService.increaseStock(
           tx,
           item.productVariantId,
-          data.branchId,
-          data.warehouseId, // assuming single warehouse per purchase // passed from request
+          data.locationId, // assuming single location per purchase // passed from request
           item.quantity,
           "PURCHASE",
           purchase.id,

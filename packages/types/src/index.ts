@@ -1,5 +1,4 @@
 export * from "./auth";
-export * from "./branch";
 export * from "./location";
 export * from "./product";
 export * from "./inventory";

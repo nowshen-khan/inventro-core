@@ -97,7 +97,7 @@ export default function SaleReturnFormPage() {
 
         branchId: selectedSale.branchId,
 
-        warehouseId: "WAREHOUSE_ID",
+        locationId: "LOCATION_ID",
 
         refundAmount,
 

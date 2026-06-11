@@ -31,7 +31,7 @@ export interface SaleItem {
 export interface CreateSalePayload {
   invoiceNo: string;
   branchId: string;
-  warehouseId: string;
+  locationId: string;
   customerId?: string;
   items: {
     productVariantId: string;

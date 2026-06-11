@@ -7,7 +7,6 @@ import {
   ArrowRightLeft,
   Boxes,
   Warehouse,
-  Building2,
   Tags,
   BadgeDollarSign,
   Users,
@@ -71,16 +70,10 @@ const allNavItems: NavItem[] = [
     permission: "inventory:view",
   },
   {
-    to: "/warehouses",
-    label: "Warehouses",
+    to: "/locations",
+    label: "Locations",
     icon: Warehouse,
-    permission: "warehouse:view",
-  },
-  {
-    to: "/branches",
-    label: "Branches",
-    icon: Building2,
-    permission: "branch:view",
+    permission: "location:view",
   },
   {
     to: "/categories",

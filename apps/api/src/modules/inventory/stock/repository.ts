@@ -1,10 +1,9 @@
 import { prisma } from "@/core/database/prisma";
 
-export const inventoryRepository = {
+export const stockRepository = {
   findAllStock: (filters?: any) => {
     const where: any = {};
-    if (filters?.branchId) where.branchId = filters.branchId;
-    if (filters?.warehouseId) where.warehouseId = filters.warehouseId;
+    if (filters?.locationId) where.locationId = filters.locationId;
     if (filters?.variantId) where.productVariantId = filters.variantId;
     if (filters?.productId) where.variant = { productId: filters.productId };
     // if (filters?.lowStock === "true")
@@ -13,10 +12,14 @@ export const inventoryRepository = {
       where,
       include: {
         variant: { include: { product: true } },
-        warehouse: true,
-        branch: true,
+        location: true,
       },
-    });
+    }).then((stocks) =>
+      stocks.map((stock) => ({
+        ...stock,
+        availableQuantity: stock.quantity - stock.reservedQuantity,
+      })),
+    );
   },
   findMovements: (stockId?: string) =>
     prisma.stockMovement.findMany({

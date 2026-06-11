@@ -5,28 +5,29 @@ export const posProductRepository = {
     return prisma.productVariant.findMany({
       where: {
         deletedAt: null,
-
-        product: {
-          deletedAt: null,
-
-          OR: [
-            {
-              name: {
-                contains: search,
-
-                mode: "insensitive",
-              },
+        OR: [
+          { barcode: { contains: search, mode: "insensitive" } },
+          { sku: { contains: search, mode: "insensitive" } },
+          {
+            product: {
+              deletedAt: null,
+              OR: [
+                {
+                  name: {
+                    contains: search,
+                    mode: "insensitive",
+                  },
+                },
+                {
+                  styleCode: {
+                    contains: search,
+                    mode: "insensitive",
+                  },
+                },
+              ],
             },
-
-            {
-              styleCode: {
-                contains: search,
-
-                mode: "insensitive",
-              },
-            },
-          ],
-        },
+          },
+        ],
       },
 
       include: {

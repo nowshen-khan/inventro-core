@@ -33,7 +33,7 @@ export class ReportService {
   async inventoryReport(branchId?: string) {
     return prisma.stock.findMany({
       where: { branchId, quantity: { gt: 0 } },
-      include: { variant: { include: { product: true } }, warehouse: true },
+      include: { variant: { include: { product: true } }, location: true },
     });
   }
   async profitLoss(params: any) {

@@ -26,7 +26,7 @@ export class AuthService {
     const accessToken = signAccessToken({
       userId: user.id,
       role: user.role.name,
-      branchId: user.branchId ?? undefined,
+      locationId: user.locationId ?? undefined,
     });
 
     const refreshToken = signRefreshToken({ userId: user.id });
@@ -53,7 +53,7 @@ export class AuthService {
       const newAccess = signAccessToken({
         userId: user.id,
         role: user.role.name,
-        branchId: user.branchId ?? undefined,
+        locationId: user.locationId ?? undefined,
       });
       const newRefresh = signRefreshToken({ userId: user.id });
       await authRepository.updateRefreshToken(user.id, newRefresh);
@@ -76,7 +76,7 @@ export class AuthService {
 
       role: typeof user.role === "string" ? user.role : user.role?.name || "",
 
-      branchId: user.branchId,
+      locationId: user.locationId,
     };
   }
 

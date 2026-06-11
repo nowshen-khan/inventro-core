@@ -4,7 +4,7 @@ export const stockAdjustmentRepository = {
   findAll: () =>
     prisma.stockAdjustment.findMany({
       include: {
-        warehouse: true,
+        location: true,
 
         items: {
           include: {
@@ -29,7 +29,7 @@ export const stockAdjustmentRepository = {
       },
 
       include: {
-        warehouse: true,
+        location: true,
 
         items: {
           include: {

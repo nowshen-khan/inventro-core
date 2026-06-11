@@ -16,7 +16,7 @@ export interface Location {
 
 export interface LocationFilters {
   search?: string;
-  type?: "WAREHOUSE" | "OUTLET" | "TRANSIT";
+  type?: LocationType;
   page?: number;
   limit?: number;
 }

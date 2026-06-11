@@ -7,7 +7,7 @@ import { salesRoutes } from "../../features/commerce/sales/routes";
 import { purchaseRoutes } from "../../features/commerce/purchases/routes";
 import { transferRoutes } from "../../features/inventory/transfers/routes";
 import { inventoryRoutes } from "../../features/inventory/routes";
-import { settingsRoutes } from "../../features/settings/routes";
+import { iamRoutes } from "../../features/iam/routes";
 import { reportRoutes } from "../../features/reports/routes";
 
 export const router = createBrowserRouter([
@@ -31,7 +31,7 @@ export const router = createBrowserRouter([
 
       ...inventoryRoutes,
 
-      ...settingsRoutes,
+      ...iamRoutes,
 
       ...reportRoutes,
     ],

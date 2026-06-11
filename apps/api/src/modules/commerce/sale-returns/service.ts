@@ -26,8 +26,6 @@ export class SaleReturnService {
 
           customerId: data.customerId,
 
-          branchId: data.branchId,
-
           refundAmount: data.refundAmount || 0,
 
           note: data.note,
@@ -54,9 +52,7 @@ export class SaleReturnService {
 
           item.productVariantId,
 
-          data.branchId,
-
-          data.warehouseId,
+          data.locationId,
 
           item.quantity,
 

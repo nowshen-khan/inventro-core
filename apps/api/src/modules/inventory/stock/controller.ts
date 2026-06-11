@@ -1,9 +1,9 @@
 import { FastifyRequest, FastifyReply } from "fastify";
-import { InventoryQueryService } from "./service";
+import { StockQueryService } from "./query.service";
 
-const service = new InventoryQueryService();
+const service = new StockQueryService();
 
-export class InventoryController {
+export class StockController {
   async getStock(req: FastifyRequest, reply: FastifyReply) {
     reply.send(await service.getStock(req.query));
   }

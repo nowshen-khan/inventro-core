@@ -1,16 +1,25 @@
-import type { Warehouse } from "./location";
+import type { Location } from "./location";
 import type { ProductVariant } from "./product";
+import type { TransferStatus } from "./enums";
+import type { User } from "./user";
 
 export interface Transfer {
   id: string;
   transferNo: string;
-  sourceWarehouseId: string;
-  sourceWarehouse?: Warehouse;
-  destWarehouseId: string;
-  destWarehouse?: Warehouse;
+  sourceLocationId: string;
+  sourceLocation?: Location;
+  destLocationId: string;
+  destLocation?: Location;
   items: TransferItem[];
-  status: string;
+  status: TransferStatus;
+  note?: string | null;
+  requestedById?: string | null;
+  approvedById?: string | null;
+
+  requestedBy?: User;
+  approvedBy?: User;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface TransferItem {
@@ -22,8 +31,40 @@ export interface TransferItem {
 }
 
 export interface CreateTransferPayload {
-  transferNo: string;
-  sourceWarehouseId: string;
-  destWarehouseId: string;
+  transferNo?: string;
+  sourceLocationId: string;
+  destLocationId: string;
+  status?: "DRAFT" | "PENDING";
+  note?: string;
   items: { productVariantId: string; quantity: number }[];
+}
+
+export interface TransferFilters {
+  search?: string;
+  status?: TransferStatus | "";
+  sourceLocationId?: string;
+  destLocationId?: string;
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+export interface TransferReport {
+  totalTransfers: number;
+  totalQuantity: number;
+  reservedQuantity: number;
+  draftTransfers: number;
+  pendingApproval: number;
+  overdueTransfers: number;
+  byStatus: Record<TransferStatus, number>;
+}
+
+export interface TransferAuditLog {
+  id: string;
+  action: string;
+  entity: string;
+  entityId?: string | null;
+  oldValue?: unknown;
+  newValue?: unknown;
+  userId: string;
+  createdAt: string;
 }

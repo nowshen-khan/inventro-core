@@ -9,7 +9,7 @@ export const purchaseRepository = {
       where: { deletedAt: null },
       include: {
         supplier: true,
-        branch: true,
+
         items: { include: { variant: { include: { product: true } } } },
       },
       orderBy: { createdAt: "desc" },
@@ -22,7 +22,7 @@ export const purchaseRepository = {
       where: { id, deletedAt: null },
       include: {
         supplier: true,
-        branch: true,
+
         items: { include: { variant: { include: { product: true } } } },
       },
     }),
@@ -31,7 +31,7 @@ export const purchaseRepository = {
       data: {
         invoiceNo: data.invoiceNo,
         supplierId: data.supplierId,
-        branchId: data.branchId,
+
         totalAmount: data.items.reduce(
           (s: number, i: any) => s + i.totalPrice,
           0,

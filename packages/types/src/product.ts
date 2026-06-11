@@ -37,7 +37,7 @@ export interface ProductFilters {
   brandId?: string;
   supplierId?: string;
   branchId?: string;
-  warehouseId?: string;
+  locationId?: string;
   lowStock?: boolean;
   minPrice?: number;
   maxPrice?: number;

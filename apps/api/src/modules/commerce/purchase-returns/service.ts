@@ -56,8 +56,6 @@ export class PurchaseReturnService {
 
           supplierId: data.supplierId,
 
-          branchId: data.branchId,
-
           note: data.note,
 
           totalAmount: data.items.reduce(
@@ -83,8 +81,6 @@ export class PurchaseReturnService {
         const stock = await tx.stock.findFirst({
           where: {
             productVariantId: item.productVariantId,
-
-            branchId: data.branchId,
           },
         });
 
@@ -95,8 +91,8 @@ export class PurchaseReturnService {
         await this.inventoryService.decreaseStock(
           tx,
           item.productVariantId,
-          data.branchId,
-          stock.warehouseId,
+
+          stock.locationId,
           item.quantity,
           MovementType.PURCHASE,
           purchaseReturn.id,

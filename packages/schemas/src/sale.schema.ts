@@ -9,8 +9,7 @@ export const saleItemSchema = z.object({
 
 export const createSaleSchema = z.object({
   invoiceNo: z.string().trim().min(1),
-  branchId: z.string().uuid(),
-  warehouseId: z.string().uuid(),
+  locationId: z.string().uuid(),
   customerId: z.string().uuid().optional(),
   items: z.array(saleItemSchema).min(1),
   subtotal: z.number(),

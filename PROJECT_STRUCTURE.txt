@@ -16,11 +16,15 @@
 │   │   │   │   │   └── migration.sql
 │   │   │   │   ├── 20260604140653_add_brand_description
 │   │   │   │   │   └── migration.sql
+│   │   │   │   ├── 20260609161049_location_refactor
+│   │   │   │   │   └── migration.sql
+│   │   │   │   ├── 20260611120000_transfer_lifecycle
+│   │   │   │   │   └── migration.sql
 │   │   │   │   └── migration_lock.toml
 │   │   │   ├── schema.prisma
-│   │   │   ├── seed-old.ts
 │   │   │   ├── seed.ts
 │   │   │   └── seeds
+│   │   │       ├── location.seed.ts
 │   │   │       ├── permissions.seed.ts
 │   │   │       ├── product.seed.ts
 │   │   │       ├── roles.seed.ts
@@ -54,13 +58,6 @@
 │   │   │   │       └── pagination.ts
 │   │   │   ├── modules
 │   │   │   │   ├── auth
-│   │   │   │   │   ├── controller.ts
-│   │   │   │   │   ├── register.ts
-│   │   │   │   │   ├── repository.ts
-│   │   │   │   │   ├── routes.ts
-│   │   │   │   │   ├── schema.ts
-│   │   │   │   │   └── service.ts
-│   │   │   │   ├── branches
 │   │   │   │   │   ├── controller.ts
 │   │   │   │   │   ├── register.ts
 │   │   │   │   │   ├── repository.ts
@@ -172,10 +169,10 @@
 │   │   │   │   │   ├── register.ts
 │   │   │   │   │   ├── stock
 │   │   │   │   │   │   ├── controller.ts
+│   │   │   │   │   │   ├── query.service.ts
 │   │   │   │   │   │   ├── repository.ts
 │   │   │   │   │   │   ├── routes.ts
 │   │   │   │   │   │   ├── schema.ts
-│   │   │   │   │   │   ├── service.ts
 │   │   │   │   │   │   └── stock.service.ts
 │   │   │   │   │   ├── Stock Ledger
 │   │   │   │   │   ├── stock-adjustments
@@ -400,6 +397,7 @@
 │       │   │   │   │   │   └── useRoles.ts
 │       │   │   │   │   └── pages
 │       │   │   │   │       └── RolesPage.tsx
+│       │   │   │   ├── routes.tsx
 │       │   │   │   └── users
 │       │   │   │       ├── api
 │       │   │   │       │   └── users.api.ts
@@ -450,6 +448,8 @@
 │       │   │   │       │   ├── useApproveTransfer.ts
 │       │   │   │       │   ├── useCreateTransfer.ts
 │       │   │   │       │   ├── useTransfer.ts
+│       │   │   │       │   ├── useTransferAuditLogs.ts
+│       │   │   │       │   ├── useTransferReport.ts
 │       │   │   │       │   └── useTransfers.ts
 │       │   │   │       ├── pages
 │       │   │   │       │   ├── TransferDetailsPage.tsx
@@ -464,16 +464,8 @@
 │       │   │   │   │   └── ReportsPage.tsx
 │       │   │   │   └── routes.tsx
 │       │   │   └── settings
-│       │   │       ├── branches
-│       │   │       │   ├── api
-│       │   │       │   │   └── branches.api.ts
-│       │   │       │   ├── hooks
-│       │   │       │   │   └── useBranches.ts
-│       │   │       │   └── pages
-│       │   │       │       └── BranchesPage.tsx
-│       │   │       ├── pages
-│       │   │       │   └── SettingsPage.tsx
-│       │   │       └── routes.tsx
+│       │   │       └── pages
+│       │   │           └── SettingsPage.tsx
 │       │   ├── index.css
 │       │   ├── layouts
 │       │   │   └── MainLayout.tsx
@@ -534,7 +526,6 @@
 │   ├── permissions
 │   │   ├── package.json
 │   │   └── src
-│   │       ├── branch.permissions.ts
 │   │       ├── catalog.permissions.ts
 │   │       ├── commerce.permissions.ts
 │   │       ├── dashboard.permissions.ts
@@ -548,7 +539,6 @@
 │   │   ├── README.md
 │   │   └── src
 │   │       ├── auth.schema.ts
-│   │       ├── branch.schema.ts
 │   │       ├── brand.schema.ts
 │   │       ├── category.schema.ts
 │   │       ├── customer.schema.ts
@@ -574,7 +564,6 @@
 │   │   └── src
 │   │       ├── api.ts
 │   │       ├── auth.ts
-│   │       ├── branch.ts
 │   │       ├── common.ts
 │   │       ├── dashboard.ts
 │   │       ├── enums.ts

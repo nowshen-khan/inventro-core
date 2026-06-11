@@ -155,15 +155,13 @@ export class ProductService {
         },
       });
 
-      const warehouse = await prisma.warehouse.findFirst();
+      const location = await prisma.location.findFirst();
 
-      const branch = await prisma.branch.findFirst();
-      if (warehouse && branch) {
+      if (location) {
         await prisma.stock.create({
           data: {
             productVariantId: variant.id,
-            warehouseId: warehouse.id,
-            branchId: branch.id,
+            locationId: location.id,
             quantity: Number(row.STOCK) || 0,
           },
         });

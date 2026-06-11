@@ -10,8 +10,7 @@ export const exchangeItemSchema = z.object({
 export const createProductExchangeSchema = z.object({
   originalSaleId: z.string().uuid(),
   customerId: z.string().uuid().optional(),
-  branchId: z.string().uuid(),
-  warehouseId: z.string().uuid(),
+  locationId: z.string().uuid(),
 
   /*
       old returned items

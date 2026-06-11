@@ -7,11 +7,11 @@ type PrismaTx = Omit<
   "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends"
 >;
 
-export class InventoryStockService {
+export class StockService {
   async increaseStock(
     tx: PrismaTx,
     variantId: string,
-    warehouseId: string,
+    locationId: string,
     quantity: number,
     type: MovementType,
     referenceId?: string,
@@ -19,12 +19,12 @@ export class InventoryStockService {
   ) {
     const stock = await tx.stock.upsert({
       where: {
-        productVariantId_warehouseId: {
+        productVariantId_locationId: {
           productVariantId: variantId,
-          warehouseId,
+          locationId,
         },
       },
-      create: { productVariantId: variantId, warehouseId, quantity },
+      create: { productVariantId: variantId, locationId, quantity },
       update: { quantity: { increment: quantity } },
     });
 
@@ -49,10 +49,111 @@ export class InventoryStockService {
     return stock;
   }
 
-  async decreaseStock(
+  async reserveStock(
     tx: PrismaTx,
     variantId: string,
-    warehouseId: string,
+    locationId: string,
+    quantity: number,
+    referenceId?: string,
+    userId?: string,
+  ) {
+    const stock = await tx.stock.findUnique({
+      where: {
+        productVariantId_locationId: {
+          productVariantId: variantId,
+          locationId,
+        },
+      },
+    });
+    const available = (stock?.quantity || 0) - (stock?.reservedQuantity || 0);
+
+    if (!stock || available < quantity) {
+      throw new AppError(
+        `Insufficient available stock for variant ${variantId}`,
+        400,
+      );
+    }
+
+    const updated = await tx.stock.update({
+      where: { id: stock.id },
+      data: { reservedQuantity: { increment: quantity } },
+    });
+
+    await this._audit(
+      tx,
+      "STOCK_RESERVED",
+      stock.id,
+      {
+        quantity: stock.quantity,
+        reservedQuantity: stock.reservedQuantity,
+        availableQuantity: available,
+        referenceId,
+      },
+      {
+        quantity: updated.quantity,
+        reservedQuantity: updated.reservedQuantity,
+        availableQuantity: updated.quantity - updated.reservedQuantity,
+        referenceId,
+      },
+      userId,
+    );
+
+    return updated;
+  }
+
+  async releaseReservedStock(
+    tx: PrismaTx,
+    variantId: string,
+    locationId: string,
+    quantity: number,
+    referenceId?: string,
+    userId?: string,
+  ) {
+    const stock = await tx.stock.findUnique({
+      where: {
+        productVariantId_locationId: {
+          productVariantId: variantId,
+          locationId,
+        },
+      },
+    });
+
+    if (!stock || stock.reservedQuantity < quantity) {
+      throw new AppError(
+        `Insufficient reserved stock for variant ${variantId}`,
+        400,
+      );
+    }
+
+    const updated = await tx.stock.update({
+      where: { id: stock.id },
+      data: { reservedQuantity: { decrement: quantity } },
+    });
+
+    await this._audit(
+      tx,
+      "STOCK_RESERVATION_RELEASED",
+      stock.id,
+      {
+        quantity: stock.quantity,
+        reservedQuantity: stock.reservedQuantity,
+        referenceId,
+      },
+      {
+        quantity: updated.quantity,
+        reservedQuantity: updated.reservedQuantity,
+        referenceId,
+      },
+      userId,
+    );
+
+    return updated;
+  }
+
+  async fulfillReservedStock(
+    tx: PrismaTx,
+    variantId: string,
+    locationId: string,
     quantity: number,
     type: MovementType,
     referenceId?: string,
@@ -60,15 +161,83 @@ export class InventoryStockService {
   ) {
     const stock = await tx.stock.findUnique({
       where: {
-        productVariantId_warehouseId: {
+        productVariantId_locationId: {
           productVariantId: variantId,
-
-          warehouseId,
+          locationId,
         },
       },
     });
-    if (!stock || stock.quantity < quantity) {
-      throw new AppError(`Insufficient stock for variant ${variantId}`, 400);
+
+    if (!stock || stock.quantity < quantity || stock.reservedQuantity < quantity) {
+      throw new AppError(
+        `Insufficient reserved stock for variant ${variantId}`,
+        400,
+      );
+    }
+
+    const updated = await tx.stock.update({
+      where: { id: stock.id },
+      data: {
+        quantity: { decrement: quantity },
+        reservedQuantity: { decrement: quantity },
+      },
+    });
+
+    await tx.stockMovement.create({
+      data: {
+        stockId: stock.id,
+        type,
+        quantity: -quantity,
+        referenceType: type,
+        referenceId,
+      },
+    });
+
+    await this._audit(
+      tx,
+      "STOCK_RESERVED_DECREASE",
+      stock.id,
+      {
+        quantity: stock.quantity,
+        reservedQuantity: stock.reservedQuantity,
+        referenceId,
+      },
+      {
+        quantity: updated.quantity,
+        reservedQuantity: updated.reservedQuantity,
+        referenceId,
+      },
+      userId,
+    );
+
+    return updated;
+  }
+
+  async decreaseStock(
+    tx: PrismaTx,
+    variantId: string,
+    locationId: string,
+    quantity: number,
+    type: MovementType,
+    referenceId?: string,
+    userId?: string,
+  ) {
+    const stock = await tx.stock.findUnique({
+      where: {
+        productVariantId_locationId: {
+          productVariantId: variantId,
+
+          locationId,
+        },
+      },
+    });
+    const available = (stock?.quantity || 0) - (stock?.reservedQuantity || 0);
+
+    if (!stock || available < quantity) {
+      throw new AppError(
+        `Insufficient available stock for variant ${variantId}`,
+        400,
+      );
     }
     const updated = await tx.stock.update({
       where: { id: stock.id },
@@ -114,3 +283,5 @@ export class InventoryStockService {
     });
   }
 }
+
+export class InventoryStockService extends StockService {}

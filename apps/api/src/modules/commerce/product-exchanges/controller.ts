@@ -1,8 +1,8 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { InventoryStockService } from "@/modules/inventory/stock/stock.service";
+import { StockService } from "@/modules/inventory/stock/stock.service";
 import { ProductExchangeService } from "./service";
 
-const inventoryService = new InventoryStockService();
+const inventoryService = new StockService();
 
 const service = new ProductExchangeService(inventoryService);
 

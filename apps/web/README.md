@@ -30,7 +30,7 @@ Sales, purchases, returns, exchanges, POS.
 
 ## Inventory
 
-Stock, warehouses, transfers, adjustments.
+Stock, locations, transfers, adjustments.
 
 ## Catalog
 

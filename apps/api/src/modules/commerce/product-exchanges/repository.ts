@@ -8,7 +8,6 @@ export const productExchangeRepository = {
         saleReturn: true,
         newSale: true,
         customer: true,
-        branch: true,
       },
 
       orderBy: {
@@ -42,7 +41,6 @@ export const productExchangeRepository = {
         },
 
         customer: true,
-        branch: true,
       },
     }),
 };

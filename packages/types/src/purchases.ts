@@ -31,7 +31,7 @@ export interface CreatePurchasePayload {
   invoiceNo: string;
   supplierId: string;
   branchId: string;
-  warehouseId: string;
+  locationId: string;
   items: {
     productVariantId: string;
     quantity: number;

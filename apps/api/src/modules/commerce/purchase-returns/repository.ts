@@ -10,8 +10,6 @@ export const purchaseReturnRepository = {
       include: {
         supplier: true,
 
-        branch: true,
-
         purchase: true,
 
         items: {
@@ -40,8 +38,6 @@ export const purchaseReturnRepository = {
 
       include: {
         supplier: true,
-
-        branch: true,
 
         purchase: true,
 

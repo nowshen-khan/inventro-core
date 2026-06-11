@@ -49,8 +49,8 @@ export default function StockAdjustmentDetailsPage() {
             </p>
 
             <p>
-              <span className="font-semibold">Warehouse:</span>{" "}
-              {data.warehouse?.name}
+              <span className="font-semibold">Location:</span>{" "}
+              {data.location?.name}
             </p>
           </div>
 

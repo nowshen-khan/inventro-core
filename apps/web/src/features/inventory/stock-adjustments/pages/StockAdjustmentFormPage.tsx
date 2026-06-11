@@ -3,16 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Card, CardContent } from "@/shared/components/ui/card";
-import { useWarehouses } from "@/features/inventory/locations/hooks/useLocations";
+import { useLocations } from "@/features/inventory/locations/hooks/useLocations";
 import { posSearchProducts } from "@/features/catalog/products/api/products.api";
 import { useCreateStockAdjustment } from "@/features/inventory/stock-adjustments/hooks/useCreateStockAdjustment";
 
 export default function StockAdjustmentFormPage() {
   const navigate = useNavigate();
   const barcodeRef = useRef<HTMLInputElement>(null);
-  const { data: warehouses } = useWarehouses();
+  const { data: locations } = useLocations();
   const createAdjustment = useCreateStockAdjustment();
-  const [warehouseId, setWarehouseId] = useState("");
+  const [locationId, setLocationId] = useState("");
   const [barcode, setBarcode] = useState("");
   const [product, setProduct] = useState<any>(null);
   const [physicalQuantity, setPhysicalQuantity] = useState(0);
@@ -81,8 +81,8 @@ export default function StockAdjustmentFormPage() {
   // SAVE
 
   const handleSave = () => {
-    if (!warehouseId) {
-      alert("Select warehouse");
+    if (!locationId) {
+      alert("Select location");
       return;
     }
 
@@ -94,7 +94,7 @@ export default function StockAdjustmentFormPage() {
     createAdjustment.mutate(
       {
         adjustmentNo: `ADJ-${Date.now()}`,
-        warehouseId,
+        locationId,
         items: items.map((item) => ({
           productVariantId: item.productVariantId,
           systemQuantity: item.systemQuantity,
@@ -124,23 +124,21 @@ export default function StockAdjustmentFormPage() {
 
         <Card className="col-span-12 lg:col-span-3">
           <CardContent className="space-y-4 p-4">
-            {/* WAREHOUSE */}
+            {/* Location */}
 
             <div>
-              <label className="mb-1 block text-sm font-medium">
-                Warehouse
-              </label>
+              <label className="mb-1 block text-sm font-medium">Location</label>
 
               <select
                 className="w-full rounded-md border p-2"
-                value={warehouseId}
-                onChange={(e) => setWarehouseId(e.target.value)}
+                value={locationId}
+                onChange={(e) => setLocationId(e.target.value)}
               >
-                <option value="">Select Warehouse</option>
+                <option value="">Select Location</option>
 
-                {warehouses?.map((warehouse: any) => (
-                  <option key={warehouse.id} value={warehouse.id}>
-                    {warehouse.name}
+                {locations?.map((location: any) => (
+                  <option key={location.id} value={location.id}>
+                    {location.name}
                   </option>
                 ))}
               </select>

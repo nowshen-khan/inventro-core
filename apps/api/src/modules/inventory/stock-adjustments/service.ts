@@ -15,7 +15,7 @@ export class StockAdjustmentService {
         data: {
           adjustmentNo: data.adjustmentNo,
 
-          warehouseId: data.warehouseId,
+          locationId: data.locationId,
 
           note: data.note,
 
@@ -50,7 +50,7 @@ export class StockAdjustmentService {
           await this.inventory.increaseStock(
             tx,
             item.productVariantId,
-            data.warehouseId,
+            data.locationId,
             diff,
             MovementType.ADJUSTMENT,
             adjustment.id,
@@ -64,7 +64,7 @@ export class StockAdjustmentService {
           await this.inventory.decreaseStock(
             tx,
             item.productVariantId,
-            data.warehouseId,
+            data.locationId,
             Math.abs(diff),
             MovementType.ADJUSTMENT,
             adjustment.id,

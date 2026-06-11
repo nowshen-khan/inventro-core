@@ -168,7 +168,7 @@ export default function ProductExchangeFormPage() {
 
         branchId: selectedSale.branchId,
 
-        warehouseId: "WAREHOUSE_ID",
+        locationId: "LOCATION_ID",
 
         returnItems: returnItems.map((item) => ({
           productVariantId: item.productVariantId,

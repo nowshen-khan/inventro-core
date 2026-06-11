@@ -60,7 +60,7 @@ Only store TypeScript types/interfaces.
 ```ts
 Product;
 Sale;
-Warehouse;
+Location;
 ```
 
 ---

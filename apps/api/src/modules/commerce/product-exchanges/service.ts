@@ -37,7 +37,7 @@ export class ProductExchangeService {
           returnNo: `SR-${Date.now()}`,
           saleId: data.originalSaleId,
           customerId: data.customerId,
-          branchId: data.branchId,
+
           totalAmount: returnTotal,
           refundAmount: data.refundAmount || 0,
           note: data.note,
@@ -61,9 +61,7 @@ export class ProductExchangeService {
 
           item.productVariantId,
 
-          data.branchId,
-
-          data.warehouseId,
+          data.locationId,
 
           item.quantity,
 
@@ -82,8 +80,6 @@ export class ProductExchangeService {
       const newSale = await tx.sale.create({
         data: {
           invoiceNo: `EXSALE-${Date.now()}`,
-
-          branchId: data.branchId,
 
           customerId: data.customerId,
 
@@ -115,9 +111,7 @@ export class ProductExchangeService {
 
           item.productVariantId,
 
-          data.branchId,
-
-          data.warehouseId,
+          data.locationId,
 
           item.quantity,
 
@@ -144,8 +138,6 @@ export class ProductExchangeService {
           newSaleId: newSale.id,
 
           customerId: data.customerId,
-
-          branchId: data.branchId,
 
           exchangeAmount: data.exchangeAmount || 0,
 

@@ -4,7 +4,6 @@ import StockAdjustmentsPage from "./stock-adjustments/pages/StockAdjustmentsPage
 import StockAdjustmentFormPage from "./stock-adjustments/pages/StockAdjustmentFormPage";
 import StockAdjustmentDetailsPage from "./stock-adjustments/pages/StockAdjustmentDetailsPage";
 import LocationsPage from "./locations/pages/LocationsPage";
-import BranchesPage from "@/features/settings/branches/pages/BranchesPage";
 import CategoriesPage from "@/features/catalog/categories/pages/CategoriesPage";
 import BrandsPage from "@/features/catalog/brands/pages/BrandsPage";
 import SuppliersPage from "@/features/catalog/suppliers/pages/SuppliersPage";
@@ -16,7 +15,6 @@ export const inventoryRoutes = [
   { path: "locations", element: <LocationsPage /> },
   { path: "locations/new", element: <LocationFormPage /> },
   { path: "locations/:id/edit", element: <EditLocationPage /> },
-  { path: "branches", element: <BranchesPage /> },
   { path: "categories", element: <CategoriesPage /> },
   { path: "brands", element: <BrandsPage /> },
   { path: "suppliers", element: <SuppliersPage /> },

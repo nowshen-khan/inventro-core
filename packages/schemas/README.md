@@ -25,7 +25,7 @@ Used for:
 src/
 ├── auth.schema.ts
 ├── branch.schema.ts
-├── warehouse.schema.ts
+├── location.schema.ts
 ├── product.schema.ts
 ├── sale.schema.ts
 ├── purchase.schema.ts

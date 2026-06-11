@@ -1,4 +1,3 @@
-import { BRANCH_PERMISSIONS } from "./branch.permissions";
 import { INVENTORY_PERMISSIONS } from "./inventory.permissions";
 import { CATALOG_PERMISSIONS } from "./catalog.permissions";
 import { COMMERCE_PERMISSIONS } from "./commerce.permissions";
@@ -8,7 +7,6 @@ import { REPORT_PERMISSIONS } from "./report.permissions";
 import { DASHBOARD_PERMISSIONS } from "./dashboard.permissions";
 
 export const ALL_PERMISSIONS = [
-  ...BRANCH_PERMISSIONS,
   ...INVENTORY_PERMISSIONS,
   ...CATALOG_PERMISSIONS,
   ...COMMERCE_PERMISSIONS,

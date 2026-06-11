@@ -20,8 +20,10 @@ export const PaymentMethod = {
 export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod];
 
 export const TransferStatus = {
+  DRAFT: "DRAFT",
   PENDING: "PENDING",
   APPROVED: "APPROVED",
+  REJECTED: "REJECTED",
   COMPLETED: "COMPLETED",
   CANCELLED: "CANCELLED",
 };
