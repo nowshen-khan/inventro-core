@@ -95,8 +95,6 @@ export default function SaleReturnFormPage() {
 
         customerId: selectedSale.customerId,
 
-        branchId: selectedSale.branchId,
-
         locationId: "LOCATION_ID",
 
         refundAmount,

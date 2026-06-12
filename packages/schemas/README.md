@@ -24,7 +24,6 @@ Used for:
 ```txt
 src/
 ├── auth.schema.ts
-├── branch.schema.ts
 ├── location.schema.ts
 ├── product.schema.ts
 ├── sale.schema.ts
@@ -66,7 +65,7 @@ createSaleSchema;
 
 ```ts
 updateProductSchema;
-updateBranchSchema;
+updateLocationSchema;
 ```
 
 ---

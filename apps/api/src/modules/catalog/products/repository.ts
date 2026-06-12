@@ -2,11 +2,8 @@ import { prisma } from "@/core/database/prisma";
 
 export const productInclude = {
   category: true,
-
   brand: true,
-
   supplier: true,
-
   variants: {
     where: {
       deletedAt: null,
@@ -74,16 +71,20 @@ export const productRepository = {
       where.categoryId = filters.categoryId;
     }
 
+    if (filters.brandId) {
+      where.brandId = filters.brandId;
+    }
+
+    if (filters.supplierId) {
+      where.supplierId = filters.supplierId;
+    }
+
     const [items, total] = await Promise.all([
       prisma.product.findMany({
         where,
-
         include: productInclude,
-
         skip,
-
         take: limit,
-
         orderBy: {
           createdAt: "desc",
         },
@@ -99,11 +100,8 @@ export const productRepository = {
 
       meta: {
         total,
-
         page,
-
         limit,
-
         totalPages: Math.ceil(total / limit),
       },
     };
@@ -113,7 +111,6 @@ export const productRepository = {
     return prisma.product.findFirstOrThrow({
       where: {
         id,
-
         deletedAt: null,
       },
 
@@ -124,7 +121,6 @@ export const productRepository = {
   create(tx: typeof prisma, data: any) {
     return tx.product.create({
       data,
-
       include: productInclude,
     });
   },
@@ -136,83 +132,116 @@ export const productRepository = {
         where: { id },
 
         data: {
-          name: data.name,
-
-          styleCode: data.styleCode,
-
-          description: data.description,
-
-          categoryId: data.categoryId,
-
-          brandId: data.brandId,
-
-          supplierId: data.supplierId,
+          ...(data.name !== undefined ? { name: data.name } : {}),
+          ...(data.styleCode !== undefined ? { styleCode: data.styleCode } : {}),
+          ...(data.description !== undefined
+            ? { description: data.description }
+            : {}),
+          ...(data.categoryId !== undefined ? { categoryId: data.categoryId } : {}),
+          ...(data.brandId !== undefined
+            ? { brandId: data.brandId || null }
+            : {}),
+          ...(data.supplierId !== undefined
+            ? { supplierId: data.supplierId || null }
+            : {}),
         },
       });
 
-      // remove variants
-      await tx.productVariant.deleteMany({
-        where: {
-          productId: id,
-        },
-      });
+      if (Array.isArray(data.variants)) {
+        const existingVariants = await tx.productVariant.findMany({
+          where: {
+            productId: id,
+            deletedAt: null,
+          },
+        });
 
-      // recreate variants
-      await tx.productVariant.createMany({
-        data: data.variants.map((v: any) => ({
-          productId: id,
+        const existingBySku = new Map(existingVariants.map((v) => [v.sku, v]));
+        const incomingSkus = new Set<string>();
 
-          sku: v.sku,
+        for (const variant of data.variants) {
+          incomingSkus.add(variant.sku);
+          const existing = existingBySku.get(variant.sku);
 
-          barcode: v.barcode,
+          if (existing) {
+            await tx.productVariant.update({
+              where: { id: existing.id },
+              data: {
+                barcode: variant.barcode || null,
+                color: variant.color || null,
+                size: variant.size || null,
+                gender: variant.gender || null,
+                costPrice: variant.costPrice,
+                sellingPrice: variant.sellingPrice,
+                reorderLevel: variant.reorderLevel ?? 10,
+                deletedAt: null,
+              },
+            });
+          } else {
+            await tx.productVariant.create({
+              data: {
+                productId: id,
+                sku: variant.sku,
+                barcode: variant.barcode || null,
+                color: variant.color || null,
+                size: variant.size || null,
+                gender: variant.gender || null,
+                costPrice: variant.costPrice,
+                sellingPrice: variant.sellingPrice,
+                reorderLevel: variant.reorderLevel ?? 10,
+              },
+            });
+          }
+        }
 
-          color: v.color,
+        if (incomingSkus.size > 0) {
+          const removedVariants = existingVariants.filter(
+            (variant) => !incomingSkus.has(variant.sku),
+          );
 
-          size: v.size,
-
-          gender: v.gender,
-
-          costPrice: v.costPrice,
-
-          sellingPrice: v.sellingPrice,
-
-          reorderLevel: v.reorderLevel ?? 10,
-        })),
-      });
+          for (const variant of removedVariants) {
+            await tx.productVariant.update({
+              where: { id: variant.id },
+              data: {
+                sku: `${variant.sku}_deleted_${Date.now()}`,
+                barcode: variant.barcode
+                  ? `${variant.barcode}_deleted_${Date.now()}`
+                  : null,
+                deletedAt: new Date(),
+              },
+            });
+          }
+        }
+      }
 
       // replace images
-      await tx.productImage.deleteMany({
-        where: {
-          productId: id,
-        },
-      });
-
-      if (data.imageUrls?.length) {
-        await tx.productImage.createMany({
-          data: data.imageUrls.map((url: string) => ({
+      if (data.imageUrls !== undefined) {
+        await tx.productImage.deleteMany({
+          where: {
             productId: id,
-
-            url,
-          })),
+          },
         });
+
+        if (data.imageUrls.length) {
+          await tx.productImage.createMany({
+            data: data.imageUrls.map((url: string) => ({
+              productId: id,
+              url,
+            })),
+          });
+        }
       }
 
       return tx.product.findUnique({
         where: { id },
-
         include: {
           category: true,
-
           brand: true,
-
           supplier: true,
-
           variants: {
             include: {
               stocks: true,
             },
           },
-
           images: true,
         },
       });
@@ -220,14 +249,55 @@ export const productRepository = {
   },
 
   softDelete(id: string) {
-    return prisma.product.update({
-      where: {
-        id,
-      },
+    return prisma.$transaction(async (tx) => {
+      const product = await tx.product.findUniqueOrThrow({
+        where: { id },
+        include: {
+          variants: true,
+        },
+      });
 
-      data: {
-        deletedAt: new Date(),
-      },
+      await tx.productVariant.updateMany({
+        where: {
+          productId: id,
+          deletedAt: null,
+        },
+        data: {
+          deletedAt: new Date(),
+        },
+      });
+
+      for (const variant of product.variants) {
+        await tx.productVariant.update({
+          where: { id: variant.id },
+          data: {
+            sku: `${variant.sku}_deleted_${Date.now()}`,
+            barcode: variant.barcode ? `${variant.barcode}_deleted_${Date.now()}` : null,
+            deletedAt: new Date(),
+          },
+        });
+      }
+
+      await tx.productImage.updateMany({
+        where: {
+          productId: id,
+          deletedAt: null,
+        },
+        data: {
+          deletedAt: new Date(),
+        },
+      });
+
+      return tx.product.update({
+        where: {
+          id,
+        },
+
+        data: {
+          deletedAt: new Date(),
+          styleCode: `${product.styleCode}_deleted_${Date.now()}`,
+        },
+      });
     });
   },
 
@@ -235,7 +305,6 @@ export const productRepository = {
     return prisma.productVariant.findFirst({
       where: {
         barcode,
-
         deletedAt: null,
       },
 
@@ -243,9 +312,7 @@ export const productRepository = {
         product: {
           include: {
             images: true,
-
             category: true,
-
             brand: true,
           },
         },
@@ -259,13 +326,11 @@ export const productRepository = {
     return prisma.productVariant.findFirst({
       where: {
         sku,
-
         deletedAt: null,
       },
 
       include: {
         product: true,
-
         stocks: true,
       },
     });

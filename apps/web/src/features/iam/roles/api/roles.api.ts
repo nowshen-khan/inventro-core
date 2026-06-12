@@ -6,7 +6,7 @@ import type {
   UpdateRolePayload,
 } from "@repo/types/rbac";
 
-interface PaginatedRoles {
+export interface PaginatedRoles {
   items: Role[];
 
   meta: {
@@ -18,7 +18,7 @@ interface PaginatedRoles {
 }
 
 export const getRoles = (params?: RoleFilters) =>
-  api.get<PaginatedRoles[]>("/roles", { params }).then((res) => res.data);
+  api.get<PaginatedRoles>("/roles", { params }).then((res) => res.data);
 
 export const getRole = (id: string) =>
   api.get<Role>(`/roles/${id}`).then((res) => res.data);

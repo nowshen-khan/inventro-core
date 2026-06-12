@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import api from "@/shared/api/client.api";
 import { DataTable } from "@/shared/components/DataTable";
 import { BarcodeScanner } from "@/shared/components/BarcodeScanner";
@@ -9,6 +9,7 @@ import { cartColumns } from "../components/cart-columns";
 import { useCreateSale } from "../hooks/useCreateSale";
 import { useCartStore } from "@/features/commerce/sales/stores/cartStore";
 import { useAuthStore } from "@/features/auth/stores/authStore";
+import { useLocations } from "@/features/inventory/locations/hooks/useLocations";
 
 export default function PointOfSale() {
   const user = useAuthStore((s) => s.user);
@@ -24,8 +25,24 @@ export default function PointOfSale() {
   const [discount, setDiscount] = useState(0);
 
   const [customerId, setCustomerId] = useState("");
+  const [selectedLocationId, setSelectedLocationId] = useState("");
 
   const { data: products } = usePosProducts(search);
+  const { data: locations } = useLocations();
+
+  useEffect(() => {
+    if (selectedLocationId) return;
+
+    if (user?.locationId) {
+      setSelectedLocationId(user.locationId);
+      return;
+    }
+
+    const firstLocation = locations?.items?.[0];
+    if (firstLocation) {
+      setSelectedLocationId(firstLocation.id);
+    }
+  }, [locations, selectedLocationId, user?.locationId]);
 
   const subtotal = useMemo(() => {
     return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -64,13 +81,19 @@ export default function PointOfSale() {
       return alert("Cart is empty");
     }
 
+    if (!selectedLocationId) {
+      return alert("Select location");
+    }
+
     try {
       await createSale.mutateAsync({
-        branchId: user?.branchId,
-        locationId: "LOCATION_ID",
+        invoiceNo: `SALE-${Date.now()}`,
+        locationId: selectedLocationId,
         customerId: customerId || undefined,
+        subtotal,
         discount,
         tax: 0,
+        totalAmount: total,
         paidAmount,
         paymentMethod: "CASH",
 
@@ -109,6 +132,20 @@ export default function PointOfSale() {
             />
 
             <BarcodeScanner onScan={handleBarcodeScan} />
+          </div>
+          <div className="mb-4 max-w-xs">
+            <select
+              value={selectedLocationId}
+              onChange={(e) => setSelectedLocationId(e.target.value)}
+              className="w-full rounded-lg border p-3"
+            >
+              <option value="">Select Location</option>
+              {locations?.items?.map((location) => (
+                <option key={location.id} value={location.id}>
+                  {location.name}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
             {products?.map((product: any) => (

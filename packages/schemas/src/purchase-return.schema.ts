@@ -10,7 +10,7 @@ export const purchaseReturnItemSchema = z.object({
 export const createPurchaseReturnSchema = z.object({
   purchaseId: z.string().uuid(),
   supplierId: z.string().uuid(),
-  branchId: z.string().uuid(),
+  locationId: z.string().uuid(),
   note: z.string().trim().optional(),
   items: z.array(purchaseReturnItemSchema),
 });

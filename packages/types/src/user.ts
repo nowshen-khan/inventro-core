@@ -1,10 +1,10 @@
-import type { Branch } from "./branch";
+import type { Location } from "./location";
 
 export interface User {
   id: string;
   email: string;
   name: string;
   role: string;
-  branchId?: string;
-  branch?: Branch;
+  locationId?: string;
+  location?: Location;
 }

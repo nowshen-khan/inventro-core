@@ -64,10 +64,17 @@ export const categoryRepository = {
     }),
 
   softDelete: (id: string) =>
-    prisma.category.update({
-      where: { id },
-      data: {
-        deletedAt: new Date(),
-      },
-    }),
+    prisma.category
+      .findUniqueOrThrow({
+        where: { id },
+      })
+      .then((category) =>
+        prisma.category.update({
+          where: { id },
+          data: {
+            deletedAt: new Date(),
+            name: `${category.name}_deleted_${Date.now()}`,
+          },
+        }),
+      ),
 };

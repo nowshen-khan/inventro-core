@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import { useFieldArray, useForm } from "react-hook-form";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
-import { useAuthStore } from "@/features/auth/stores/authStore";
 import { useCreatePurchase } from "../hooks/useCreatePurchase";
 import { useSuppliers } from "@/features/catalog/suppliers/hooks/useSuppliers";
 import { useProducts } from "@/features/catalog/products/hooks/useProducts";
@@ -16,23 +15,14 @@ export default function PurchaseFormPage() {
   const { register, control, handleSubmit, watch } = useForm({
     defaultValues: {
       invoiceNo: "",
-
       supplierId: "",
-
-      branchId: "",
-
       locationId: "",
-
       paidAmount: 0,
-
       items: [
         {
           productVariantId: "",
-
           quantity: 1,
-
           costPrice: 0,
-
           totalPrice: 0,
         },
       ],
@@ -41,27 +31,25 @@ export default function PurchaseFormPage() {
 
   const { fields, append, remove } = useFieldArray({
     control,
-
     name: "items",
   });
 
-  const { data: suppliers } = useSuppliers();
+  const { data: suppliersData } = useSuppliers();
+  const suppliers = suppliersData?.items ?? [];
 
   const { data: products } = useProducts({
     limit: 100,
   });
 
-  const { data: locations } = useLocations();
+  const { data: locationsData } = useLocations();
+  const locations = locationsData?.items ?? [];
 
   const items = watch("items");
-
-  const user = useAuthStore((s) => s.user);
-
   const onSubmit = async (values: any) => {
     try {
       const payload = {
         ...values,
-        branchId: "359ad7c3-9bde-4b24-bc04-4c24e91cd1c4",
+
         items: values.items.map((item: any) => ({
           ...item,
           totalPrice: item.quantity * item.costPrice,
@@ -86,7 +74,7 @@ export default function PurchaseFormPage() {
         <select {...register("supplierId")} className="rounded-lg border p-3">
           <option value="">Select Supplier</option>
 
-          {suppliers?.map((supplier: any) => (
+          {suppliers.map((supplier: any) => (
             <option key={supplier.id} value={supplier.id}>
               {supplier.name}
             </option>
@@ -96,7 +84,7 @@ export default function PurchaseFormPage() {
         <select {...register("locationId")} className="rounded-lg border p-3">
           <option value="">Select Location</option>
 
-          {locations?.map((location: any) => (
+          {locations.map((location: any) => (
             <option key={location.id} value={location.id}>
               {location.name}
             </option>

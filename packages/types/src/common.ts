@@ -55,7 +55,7 @@ export interface Customer {
 
 export interface CustomerFilters {
   search?: string;
-  branchId?: string;
+  locationId?: string;
   page?: number;
   limit?: number;
 }

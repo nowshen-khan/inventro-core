@@ -8,7 +8,7 @@ export const variantSchema = z.object({
   gender: z.enum(["MALE", "FEMALE", "UNISEX", "BOYS", "GIRLS", "KIDS"]),
   costPrice: z.number(),
   sellingPrice: z.number(),
-  reorderLevel: z.number().int().default(5),
+  reorderLevel: z.number().int().default(10),
 });
 
 export const createProductSchema = z.object({

@@ -22,11 +22,13 @@ import {
 interface DataTableProps<T> {
   data: T[];
   columns: ColumnDef<T>[];
-  pagination: PaginationState;
-  pageCount: number;
-  onPaginationChange: (pagination: PaginationState) => void;
+  pagination?: PaginationState;
+  pageCount?: number;
+  onPaginationChange?: (pagination: PaginationState) => void;
   sorting?: SortingState;
   onSortingChange?: (sorting: SortingState) => void;
+  isLoading?: boolean;
+  onRowClick?: (row: T) => void;
 }
 
 export function DataTable<T>({
@@ -37,18 +39,25 @@ export function DataTable<T>({
   onPaginationChange,
   sorting,
   onSortingChange,
+  isLoading,
+  onRowClick,
 }: DataTableProps<T>) {
+  const effectivePagination = pagination ?? {
+    pageIndex: 0,
+    pageSize: data.length || 10,
+  };
+  const effectivePageCount = pageCount ?? 1;
   const table = useReactTable({
     data,
     columns,
-    state: { pagination, sorting },
-    pageCount,
-    manualPagination: true,
+    state: { pagination: effectivePagination, sorting },
+    pageCount: effectivePageCount,
+    manualPagination: !!pagination,
     manualSorting: true,
     onPaginationChange: (updater) => {
       const newPagination =
-        typeof updater === "function" ? updater(pagination) : updater;
-      onPaginationChange(newPagination);
+        typeof updater === "function" ? updater(effectivePagination) : updater;
+      onPaginationChange?.(newPagination);
     },
     onSortingChange: (updater) => {
       const newSorting =
@@ -90,9 +99,22 @@ export function DataTable<T>({
           ))}
         </TableHeader>
         <TableBody>
-          {table.getRowModel().rows?.length ? (
+          {isLoading ? (
+            <TableRow>
+              <TableCell
+                colSpan={columns.length}
+                className="h-32 text-center text-slate-500"
+              >
+                Loading...
+              </TableCell>
+            </TableRow>
+          ) : table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
+              <TableRow
+                key={row.id}
+                className={onRowClick ? "cursor-pointer" : undefined}
+                onClick={onRowClick ? () => onRowClick(row.original) : undefined}
+              >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -122,46 +144,46 @@ export function DataTable<T>({
           <p className="text-sm text-slate-500">
             Page{" "}
             <span className="font-medium text-black">
-              {pagination.pageIndex + 1}
+              {effectivePagination.pageIndex + 1}
             </span>{" "}
-            of <span className="font-medium text-black">{pageCount || 1}</span>
+            of{" "}
+            <span className="font-medium text-black">
+              {effectivePageCount || 1}
+            </span>
           </p>
 
-          <select
-            value={pagination.pageSize}
-            onChange={(e) =>
-              onPaginationChange({
-                ...pagination,
-
-                pageSize: Number(e.target.value),
-
-                pageIndex: 0,
-              })
-            }
-            className="rounded-lg border px-2 py-1 text-sm"
-          >
-            <option value={10}>10 rows</option>
-
-            <option value={25}>25 rows</option>
-
-            <option value={50}>50 rows</option>
-
-            <option value={100}>100 rows</option>
-          </select>
+          {pagination && onPaginationChange ? (
+            <select
+              value={pagination.pageSize}
+              onChange={(e) =>
+                onPaginationChange({
+                  ...pagination,
+                  pageSize: Number(e.target.value),
+                  pageIndex: 0,
+                })
+              }
+              className="rounded-lg border px-2 py-1 text-sm"
+            >
+              <option value={10}>10 rows</option>
+              <option value={25}>25 rows</option>
+              <option value={50}>50 rows</option>
+              <option value={100}>100 rows</option>
+            </select>
+          ) : null}
         </div>
 
         {/* RIGHT */}
 
-        <div className="flex items-center gap-2">
+        {pagination && onPaginationChange ? (
+          <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
-            disabled={pagination.pageIndex === 0}
+            disabled={effectivePagination.pageIndex === 0}
             onClick={() =>
               onPaginationChange({
-                ...pagination,
-
-                pageIndex: pagination.pageIndex - 1,
+                ...effectivePagination,
+                pageIndex: effectivePagination.pageIndex - 1,
               })
             }
           >
@@ -171,18 +193,18 @@ export function DataTable<T>({
           <Button
             variant="outline"
             size="sm"
-            disabled={pagination.pageIndex + 1 >= pageCount}
+            disabled={effectivePagination.pageIndex + 1 >= effectivePageCount}
             onClick={() =>
               onPaginationChange({
-                ...pagination,
-
-                pageIndex: pagination.pageIndex + 1,
+                ...effectivePagination,
+                pageIndex: effectivePagination.pageIndex + 1,
               })
             }
           >
             Next
           </Button>
-        </div>
+          </div>
+        ) : null}
       </div>
     </div>
   );

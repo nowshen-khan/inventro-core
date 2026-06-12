@@ -4,7 +4,7 @@ import { getPagination } from "@/core/utils/pagination";
 import type { CreateSaleInput } from "./schema";
 
 interface SaleFilters extends PaginationQuery {
-  branchId?: string;
+  locationId?: string;
 }
 
 export const saleRepository = {
@@ -15,8 +15,8 @@ export const saleRepository = {
       where: {
         deletedAt: null,
 
-        ...(filters?.branchId && {
-          branchId: filters.branchId,
+        ...(filters?.locationId && {
+          locationId: filters.locationId,
         }),
 
         ...(filters?.search && {
@@ -29,7 +29,7 @@ export const saleRepository = {
 
       include: {
         customer: true,
-        branch: true,
+        location: true,
         items: { include: { variant: { include: { product: true } } } },
       },
       orderBy: { createdAt: "desc" },
@@ -43,7 +43,7 @@ export const saleRepository = {
       where: { id, deletedAt: null },
       include: {
         customer: true,
-        branch: true,
+        location: true,
         items: { include: { variant: { include: { product: true } } } },
       },
     }),
@@ -51,7 +51,7 @@ export const saleRepository = {
     prisma.sale.create({
       data: {
         invoiceNo: data.invoiceNo,
-        branchId: data.branchId,
+        locationId: data.locationId,
         customerId: data.customerId,
         subtotal: data.subtotal,
         tax: data.tax || 0,

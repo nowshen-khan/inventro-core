@@ -2,8 +2,39 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/shared/components/ui/button";
 import { Link } from "react-router-dom";
 import { useDeleteProduct } from "../hooks/useDeleteProduct";
+import type { Product } from "@repo/types/product";
 
-export const columns: ColumnDef<any>[] = [
+function ProductActionsCell({ product }: { product: Product }) {
+  const deleteMutation = useDeleteProduct();
+
+  const handleDelete = async () => {
+    const confirmDelete = window.confirm("Delete this product?");
+
+    if (!confirmDelete) return;
+
+    try {
+      await deleteMutation.mutateAsync(product.id);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  return (
+    <div className="flex gap-2">
+      <Link to={`/products/${product.id}/edit`}>
+        <Button size="sm" variant="outline">
+          Edit
+        </Button>
+      </Link>
+
+      <Button size="sm" variant="destructive" onClick={handleDelete}>
+        Delete
+      </Button>
+    </div>
+  );
+}
+
+export const columns: ColumnDef<Product>[] = [
   {
     accessorKey: "name",
     header: "Product",
@@ -39,35 +70,7 @@ export const columns: ColumnDef<any>[] = [
     id: "actions",
 
     cell: ({ row }) => {
-      const product = row.original;
-
-      const deleteMutation = useDeleteProduct();
-
-      const handleDelete = async () => {
-        const confirmDelete = window.confirm("Delete this product?");
-
-        if (!confirmDelete) return;
-
-        try {
-          await deleteMutation.mutateAsync(product.id);
-        } catch (err) {
-          console.error(err);
-        }
-      };
-
-      return (
-        <div className="flex gap-2">
-          <Link to={`/products/${product.id}/edit`}>
-            <Button size="sm" variant="outline">
-              Edit
-            </Button>
-          </Link>
-
-          <Button size="sm" variant="destructive" onClick={handleDelete}>
-            Delete
-          </Button>
-        </div>
-      );
+      return <ProductActionsCell product={row.original} />;
     },
   },
 ];

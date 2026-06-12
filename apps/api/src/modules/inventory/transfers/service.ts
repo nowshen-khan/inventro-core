@@ -314,6 +314,9 @@ export class TransferService {
 
   private async generateTransferNo(tx: any) {
     const prefix = `TR-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}`;
+    await tx.$executeRaw`
+      SELECT pg_advisory_xact_lock(hashtext(${prefix}))
+    `;
     const lastTransfer = await tx.transfer.findFirst({
       where: { transferNo: { startsWith: prefix } },
       orderBy: { transferNo: "desc" },

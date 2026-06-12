@@ -2,28 +2,48 @@ import type { Category } from "./common";
 import type { Brand } from "./common";
 import type { Supplier } from "./supplier";
 
+export type ProductGender =
+  | "MALE"
+  | "FEMALE"
+  | "UNISEX"
+  | "BOYS"
+  | "GIRLS"
+  | "KIDS";
+
 export interface Product {
   id: string;
   name: string;
+  styleCode: string;
   description?: string;
   categoryId: string;
   category: Category;
-  brandId?: string;
-  brand?: Brand;
-  supplierId?: string;
-  supplier?: Supplier;
+  brandId?: string | null;
+  brand?: Brand | null;
+  supplierId?: string | null;
+  supplier?: Supplier | null;
   variants: ProductVariant[];
   images: ProductImage[];
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string | null;
 }
 
 export interface ProductVariant {
   id: string;
+  productId: string;
   sku: string;
-  barcode?: string;
-  attributes: Record<string, string>;
+  barcode?: string | null;
+  color?: string | null;
+  size?: string | null;
+  gender?: ProductGender | null;
+  attributes?: Record<string, string>;
   costPrice: number;
   sellingPrice: number;
   reorderLevel: number;
+  stocks: ProductStock[];
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string | null;
 }
 
 export interface ProductImage {
@@ -31,12 +51,19 @@ export interface ProductImage {
   url: string;
 }
 
+export interface ProductStock {
+  id: string;
+  locationId: string;
+  quantity: number;
+  reservedQuantity: number;
+  availableQuantity?: number;
+}
+
 export interface ProductFilters {
   search?: string;
   categoryId?: string;
   brandId?: string;
   supplierId?: string;
-  branchId?: string;
   locationId?: string;
   lowStock?: boolean;
   minPrice?: number;

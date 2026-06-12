@@ -4,16 +4,20 @@ export const expenseRepository = {
   findAll: (filters?: any) =>
     prisma.expense.findMany({
       where: { ...filters },
-      include: { branch: true },
+      include: { location: true },
     }),
+
   findById: (id: string) =>
     prisma.expense.findFirstOrThrow({
       where: { id },
-      include: { branch: true },
+      include: { location: true },
     }),
+
   create: (data: any) =>
-    prisma.expense.create({ data, include: { branch: true } }),
+    prisma.expense.create({ data, include: { location: true } }),
+
   update: (id: string, data: any) =>
-    prisma.expense.update({ where: { id }, data, include: { branch: true } }),
+    prisma.expense.update({ where: { id }, data, include: { location: true } }),
+
   delete: (id: string) => prisma.expense.delete({ where: { id } }),
 };

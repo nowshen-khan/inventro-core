@@ -10,7 +10,7 @@ export const saleReturnItemSchema = z.object({
 export const createSaleReturnSchema = z.object({
   saleId: z.string().uuid(),
   customerId: z.string().uuid().optional(),
-  branchId: z.string().uuid(),
+  locationId: z.string().uuid(),
   refundAmount: z.number().min(0).optional(),
   note: z.string().optional(),
   items: z.array(saleReturnItemSchema).min(1),

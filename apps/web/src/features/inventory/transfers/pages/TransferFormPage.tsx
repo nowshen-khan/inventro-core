@@ -13,6 +13,7 @@ export default function TransferFormPage() {
   const [barcode, setBarcode] = useState("");
 
   const barcodeRef = useRef<HTMLInputElement>(null);
+  const barcodeRequestId = useRef(0);
   const [product, setProduct] = useState<any>(null);
   const [quantity, setQuantity] = useState(1);
 
@@ -82,13 +83,15 @@ export default function TransferFormPage() {
   };
 
   useEffect(() => {
+    const requestId = ++barcodeRequestId.current;
+
     const fetchProduct = async () => {
       if (!barcode || barcode.length < 3) return;
 
       try {
         const data = await posSearchProducts(barcode);
 
-        if (data?.length) {
+        if (requestId === barcodeRequestId.current && data?.length) {
           setProduct(data[0]);
         }
       } catch (error) {
@@ -154,6 +157,7 @@ export default function TransferFormPage() {
     setBarcode("");
     setProduct(null);
     setQuantity(1);
+    barcodeRequestId.current += 1;
 
     setTimeout(() => {
       barcodeRef.current?.focus();
@@ -218,7 +222,14 @@ export default function TransferFormPage() {
               <select
                 className="w-full rounded-md border p-2"
                 value={sourceLocationId}
-                onChange={(e) => setSourceLocationId(e.target.value)}
+                onChange={(e) => {
+                  setSourceLocationId(e.target.value);
+                  setItems([]);
+                  setBarcode("");
+                  setProduct(null);
+                  setQuantity(1);
+                  barcodeRequestId.current += 1;
+                }}
               >
                 <option value="">Select Location</option>
 
@@ -271,7 +282,10 @@ export default function TransferFormPage() {
                 placeholder="Barcode Scan"
                 value={barcode}
                 ref={barcodeRef}
-                onChange={(e) => setBarcode(e.target.value)}
+                onChange={(e) => {
+                  setBarcode(e.target.value);
+                  barcodeRequestId.current += 1;
+                }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
@@ -356,9 +370,10 @@ export default function TransferFormPage() {
                 variant="destructive"
                 onClick={() => {
                   setItems([]);
-                  setBarcode("");
-                  setProduct(null);
-                  setQuantity(1);
+    setBarcode("");
+    setProduct(null);
+    setQuantity(1);
+    barcodeRequestId.current += 1;
                   setNote("");
                 }}
               >

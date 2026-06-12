@@ -64,10 +64,15 @@ export const brandRepository = {
     }),
 
   softDelete: async (id: string) => {
+    const brand = await prisma.brand.findUniqueOrThrow({
+      where: { id },
+    });
+
     return prisma.brand.update({
       where: { id },
       data: {
         deletedAt: new Date(),
+        name: `${brand.name}_deleted_${Date.now()}`,
       },
     });
   },

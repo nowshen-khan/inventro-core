@@ -57,27 +57,24 @@ export class StockService {
     referenceId?: string,
     userId?: string,
   ) {
-    const stock = await tx.stock.findUnique({
-      where: {
-        productVariantId_locationId: {
-          productVariantId: variantId,
-          locationId,
-        },
-      },
-    });
-    const available = (stock?.quantity || 0) - (stock?.reservedQuantity || 0);
+    const rows = await tx.$queryRaw<
+      Array<{ id: string; quantity: number; reservedQuantity: number }>
+    >`
+      UPDATE "Stock"
+      SET "reservedQuantity" = "reservedQuantity" + ${quantity}
+      WHERE "productVariantId" = ${variantId}
+        AND "locationId" = ${locationId}
+        AND ("quantity" - "reservedQuantity") >= ${quantity}
+      RETURNING "id", "quantity", "reservedQuantity"
+    `;
+    const stock = rows[0];
 
-    if (!stock || available < quantity) {
+    if (!stock) {
       throw new AppError(
         `Insufficient available stock for variant ${variantId}`,
         400,
       );
     }
-
-    const updated = await tx.stock.update({
-      where: { id: stock.id },
-      data: { reservedQuantity: { increment: quantity } },
-    });
 
     await this._audit(
       tx,
@@ -86,19 +83,19 @@ export class StockService {
       {
         quantity: stock.quantity,
         reservedQuantity: stock.reservedQuantity,
-        availableQuantity: available,
+        availableQuantity: stock.quantity - stock.reservedQuantity,
         referenceId,
       },
       {
-        quantity: updated.quantity,
-        reservedQuantity: updated.reservedQuantity,
-        availableQuantity: updated.quantity - updated.reservedQuantity,
+        quantity: stock.quantity,
+        reservedQuantity: stock.reservedQuantity,
+        availableQuantity: stock.quantity - stock.reservedQuantity,
         referenceId,
       },
       userId,
     );
 
-    return updated;
+    return stock;
   }
 
   async releaseReservedStock(
@@ -109,26 +106,24 @@ export class StockService {
     referenceId?: string,
     userId?: string,
   ) {
-    const stock = await tx.stock.findUnique({
-      where: {
-        productVariantId_locationId: {
-          productVariantId: variantId,
-          locationId,
-        },
-      },
-    });
+    const rows = await tx.$queryRaw<
+      Array<{ id: string; quantity: number; reservedQuantity: number }>
+    >`
+      UPDATE "Stock"
+      SET "reservedQuantity" = "reservedQuantity" - ${quantity}
+      WHERE "productVariantId" = ${variantId}
+        AND "locationId" = ${locationId}
+        AND "reservedQuantity" >= ${quantity}
+      RETURNING "id", "quantity", "reservedQuantity"
+    `;
+    const stock = rows[0];
 
-    if (!stock || stock.reservedQuantity < quantity) {
+    if (!stock) {
       throw new AppError(
         `Insufficient reserved stock for variant ${variantId}`,
         400,
       );
     }
-
-    const updated = await tx.stock.update({
-      where: { id: stock.id },
-      data: { reservedQuantity: { decrement: quantity } },
-    });
 
     await this._audit(
       tx,
@@ -140,14 +135,14 @@ export class StockService {
         referenceId,
       },
       {
-        quantity: updated.quantity,
-        reservedQuantity: updated.reservedQuantity,
+        quantity: stock.quantity,
+        reservedQuantity: stock.reservedQuantity,
         referenceId,
       },
       userId,
     );
 
-    return updated;
+    return stock;
   }
 
   async fulfillReservedStock(
@@ -159,29 +154,26 @@ export class StockService {
     referenceId?: string,
     userId?: string,
   ) {
-    const stock = await tx.stock.findUnique({
-      where: {
-        productVariantId_locationId: {
-          productVariantId: variantId,
-          locationId,
-        },
-      },
-    });
+    const rows = await tx.$queryRaw<
+      Array<{ id: string; quantity: number; reservedQuantity: number }>
+    >`
+      UPDATE "Stock"
+      SET "quantity" = "quantity" - ${quantity},
+          "reservedQuantity" = "reservedQuantity" - ${quantity}
+      WHERE "productVariantId" = ${variantId}
+        AND "locationId" = ${locationId}
+        AND "quantity" >= ${quantity}
+        AND "reservedQuantity" >= ${quantity}
+      RETURNING "id", "quantity", "reservedQuantity"
+    `;
+    const stock = rows[0];
 
-    if (!stock || stock.quantity < quantity || stock.reservedQuantity < quantity) {
+    if (!stock) {
       throw new AppError(
         `Insufficient reserved stock for variant ${variantId}`,
         400,
       );
     }
-
-    const updated = await tx.stock.update({
-      where: { id: stock.id },
-      data: {
-        quantity: { decrement: quantity },
-        reservedQuantity: { decrement: quantity },
-      },
-    });
 
     await tx.stockMovement.create({
       data: {
@@ -203,14 +195,14 @@ export class StockService {
         referenceId,
       },
       {
-        quantity: updated.quantity,
-        reservedQuantity: updated.reservedQuantity,
+        quantity: stock.quantity,
+        reservedQuantity: stock.reservedQuantity,
         referenceId,
       },
       userId,
     );
 
-    return updated;
+    return stock;
   }
 
   async decreaseStock(
@@ -222,27 +214,24 @@ export class StockService {
     referenceId?: string,
     userId?: string,
   ) {
-    const stock = await tx.stock.findUnique({
-      where: {
-        productVariantId_locationId: {
-          productVariantId: variantId,
+    const rows = await tx.$queryRaw<
+      Array<{ id: string; quantity: number; reservedQuantity: number }>
+    >`
+      UPDATE "Stock"
+      SET "quantity" = "quantity" - ${quantity}
+      WHERE "productVariantId" = ${variantId}
+        AND "locationId" = ${locationId}
+        AND ("quantity" - "reservedQuantity") >= ${quantity}
+      RETURNING "id", "quantity", "reservedQuantity"
+    `;
+    const stock = rows[0];
 
-          locationId,
-        },
-      },
-    });
-    const available = (stock?.quantity || 0) - (stock?.reservedQuantity || 0);
-
-    if (!stock || available < quantity) {
+    if (!stock) {
       throw new AppError(
         `Insufficient available stock for variant ${variantId}`,
         400,
       );
     }
-    const updated = await tx.stock.update({
-      where: { id: stock.id },
-      data: { quantity: { decrement: quantity } },
-    });
     await tx.stockMovement.create({
       data: {
         stockId: stock.id,
@@ -256,11 +245,11 @@ export class StockService {
       tx,
       "STOCK_DECREASE",
       stock.id,
-      { quantity: stock.quantity },
-      { quantity: updated.quantity },
+      { quantity: stock.quantity, reservedQuantity: stock.reservedQuantity },
+      { quantity: stock.quantity, reservedQuantity: stock.reservedQuantity },
       userId,
     );
-    return updated;
+    return stock;
   }
 
   private async _audit(

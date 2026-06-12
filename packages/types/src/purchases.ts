@@ -1,5 +1,5 @@
 import type { Supplier } from "./supplier";
-import type { Branch } from "./branch";
+import type { Location } from "./location";
 import type { ProductVariant } from "./product";
 
 export interface Purchase {
@@ -7,8 +7,8 @@ export interface Purchase {
   invoiceNo: string;
   supplierId: string;
   supplier?: Supplier;
-  branchId: string;
-  branch?: Branch;
+  locationId: string;
+  location?: Location;
   items: PurchaseItem[];
   totalAmount: number;
   paidAmount: number;
@@ -30,7 +30,6 @@ export interface PurchaseItem {
 export interface CreatePurchasePayload {
   invoiceNo: string;
   supplierId: string;
-  branchId: string;
   locationId: string;
   items: {
     productVariantId: string;

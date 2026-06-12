@@ -5,34 +5,34 @@ export class ReportService {
   async salesReport(params: {
     startDate?: string;
     endDate?: string;
-    branchId?: string;
+    locationId?: string;
   }) {
     const where: any = {};
-    if (params.branchId) where.branchId = params.branchId;
+    if (params.locationId) where.locationId = params.locationId;
     if (params.startDate) where.createdAt = { gte: new Date(params.startDate) };
     if (params.endDate)
       where.createdAt = { ...where.createdAt, lte: new Date(params.endDate) };
     return prisma.sale.findMany({
       where,
-      include: { items: true, branch: true, customer: true },
+      include: { items: true, location: true, customer: true },
     });
   }
 
   async purchaseReport(params: any) {
     const where: any = {};
-    if (params.branchId) where.branchId = params.branchId;
+    if (params.locationId) where.locationId = params.locationId;
     if (params.startDate) where.createdAt = { gte: new Date(params.startDate) };
     if (params.endDate)
       where.createdAt = { ...where.createdAt, lte: new Date(params.endDate) };
     return prisma.purchase.findMany({
       where,
-      include: { items: true, supplier: true, branch: true },
+      include: { items: true, supplier: true, location: true },
     });
   }
 
-  async inventoryReport(branchId?: string) {
+  async inventoryReport(locationId?: string) {
     return prisma.stock.findMany({
-      where: { branchId, quantity: { gt: 0 } },
+      where: { locationId, quantity: { gt: 0 } },
       include: { variant: { include: { product: true } }, location: true },
     });
   }

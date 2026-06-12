@@ -1,16 +1,30 @@
 import api from "@/shared/api/client.api";
 import type { Product, ProductFilters } from "@repo/types/product";
+import type {
+  CreateProductInput,
+  UpdateProductInput,
+} from "../schemas/product.schema";
+
+export interface PaginatedProducts {
+  items: Product[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
 
 export const getProducts = (params?: ProductFilters) =>
-  api.get<Product[]>("/products", { params }).then((res) => res.data);
+  api.get<PaginatedProducts>("/products", { params }).then((res) => res.data);
 
 export const getProduct = (id: string) =>
   api.get<Product>(`/products/${id}`).then((res) => res.data);
 
-export const createProduct = (data: any) =>
+export const createProduct = (data: CreateProductInput) =>
   api.post("/products", data).then((res) => res.data);
 
-export const updateProduct = (id: string, data: any) =>
+export const updateProduct = (id: string, data: UpdateProductInput) =>
   api.put(`/products/${id}`, data).then((res) => res.data);
 
 export const deleteProduct = (id: string) =>
@@ -25,6 +39,14 @@ export const importProducts = (formData: FormData) =>
       "Content-Type": "multipart/form-data",
     },
   });
+
+export const exportProducts = (params?: ProductFilters) =>
+  api
+    .get("/products/export", {
+      params,
+      responseType: "blob",
+    })
+    .then((res) => res.data as Blob);
 
 export const posSearchProducts = (search: string) =>
   api

@@ -163,20 +163,12 @@ export default function ProductExchangeFormPage() {
     try {
       await mutation.mutateAsync({
         originalSaleId: selectedSale.id,
-
         customerId: selectedSale.customerId,
-
-        branchId: selectedSale.branchId,
-
-        locationId: "LOCATION_ID",
-
+        locationId: selectedSale.locationId,
         returnItems: returnItems.map((item) => ({
           productVariantId: item.productVariantId,
-
           quantity: Number(item.quantity),
-
           sellingPrice: Number(item.sellingPrice),
-
           totalPrice: Number(item.totalPrice),
         })),
 

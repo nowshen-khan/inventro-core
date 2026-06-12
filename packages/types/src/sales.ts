@@ -4,7 +4,7 @@ import type { ProductVariant } from "./product";
 export interface Sale {
   id: string;
   invoiceNo: string;
-  branchId: string;
+  locationId: string;
   customerId?: string;
   customer?: Customer;
   items: SaleItem[];
@@ -30,7 +30,6 @@ export interface SaleItem {
 
 export interface CreateSalePayload {
   invoiceNo: string;
-  branchId: string;
   locationId: string;
   customerId?: string;
   items: {

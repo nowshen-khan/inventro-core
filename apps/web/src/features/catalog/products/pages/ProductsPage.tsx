@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
 import { DataTable } from "@/shared/components/DataTable";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -6,10 +6,15 @@ import { useProducts } from "../hooks/useProducts";
 import { columns } from "../components/columns";
 import { useNavigate } from "react-router-dom";
 import { useImportProducts } from "../hooks/useImportProducts";
+import { exportProducts } from "../api/products.api";
+import type { PaginationState, SortingState } from "@tanstack/react-table";
 
 export default function ProductsPage() {
-  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
-  const [sorting, setSorting] = useState([]);
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+  const [sorting, setSorting] = useState<SortingState>([]);
 
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
@@ -26,7 +31,7 @@ export default function ProductsPage() {
 
   const importMutation = useImportProducts();
 
-  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImport = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
     if (!file) return;
@@ -39,6 +44,25 @@ export default function ProductsPage() {
       console.error(error);
 
       alert("Import failed");
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      const blob = await exportProducts({
+        search: search || undefined,
+      });
+      const url = window.URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = "products.xlsx";
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(error);
+      alert("Export failed");
     }
   };
 
@@ -81,9 +105,7 @@ export default function ProductsPage() {
 
             <Button
               variant="outline"
-              onClick={() => {
-                window.open("http://localhost:3001/products/export", "_blank");
-              }}
+              onClick={handleExport}
             >
               Export Excel
             </Button>

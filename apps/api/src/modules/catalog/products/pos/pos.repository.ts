@@ -32,7 +32,6 @@ export const posProductRepository = {
 
       include: {
         product: true,
-
         stocks: true,
       },
 

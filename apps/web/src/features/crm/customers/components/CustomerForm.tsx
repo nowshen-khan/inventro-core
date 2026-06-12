@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { Button } from "@/shared/components/ui/button";
 import type { Customer, CreateCustomerPayload } from "@repo/types/common";
-import { toast } from "sonner";
+// import { toast } from "sonner";
 
 interface Props {
   defaultValues?: Partial<Customer>;

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import type { ColumnDef, PaginationState } from "@tanstack/react-table";
 import { ALL_PERMISSIONS } from "@repo/permissions";
 import type {

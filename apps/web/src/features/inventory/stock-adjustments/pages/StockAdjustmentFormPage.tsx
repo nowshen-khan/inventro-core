@@ -10,7 +10,8 @@ import { useCreateStockAdjustment } from "@/features/inventory/stock-adjustments
 export default function StockAdjustmentFormPage() {
   const navigate = useNavigate();
   const barcodeRef = useRef<HTMLInputElement>(null);
-  const { data: locations } = useLocations();
+  const { data: locationsData } = useLocations();
+  const locations = locationsData?.items ?? [];
   const createAdjustment = useCreateStockAdjustment();
   const [locationId, setLocationId] = useState("");
   const [barcode, setBarcode] = useState("");

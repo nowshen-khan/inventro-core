@@ -13,7 +13,6 @@ You currently have:
 ✔ Inventory
 ✔ Stock movement
 ✔ Locations
-✔ Branches
 ✔ Purchase returns
 ✔ Sale returns
 ✔ Product exchange
@@ -142,7 +141,6 @@ Because now your ERP finally has enough transactional data to make analytics mea
 
 Backend Modules
 1. Auth
-2. Branches
 3. Calalog (brands, categories, products, suppliers )
 4. Commerce (product-exchange, purchase-return, purchases, sale-return, sales)
 5. Crm (Customer)

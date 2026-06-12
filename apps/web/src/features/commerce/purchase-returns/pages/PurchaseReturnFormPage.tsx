@@ -77,7 +77,7 @@ export default function PurchaseReturnFormPage() {
 
         supplierId: selectedPurchase.supplierId,
 
-        branchId: selectedPurchase.branchId,
+        locationId: selectedPurchase.locationId,
 
         note,
 

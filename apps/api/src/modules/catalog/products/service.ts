@@ -2,26 +2,10 @@ import { productRepository } from "./repository";
 import { AppError } from "@/core/errors/AppError";
 import { prisma } from "@/core/database/prisma";
 import XLSX from "xlsx";
-
-type VariantInput = {
-  sku: string;
-  barcode?: string;
-  attributes?: any;
-  costPrice: number;
-  sellingPrice: number;
-  reorderLevel?: number;
-};
-
-type CreateProductInput = {
-  name: string;
-  description?: string;
-  categoryId: string;
-  brandId?: string;
-  supplierId?: string;
-  imageUrls?: string[];
-  variants: VariantInput[];
-  styleCode: string;
-};
+import type {
+  CreateProductInput,
+  UpdateProductInput,
+} from "@repo/schemas/product";
 
 export class ProductService {
   async getAll(filters?: any, page?: 1, limit?: 10) {
@@ -46,7 +30,9 @@ export class ProductService {
           create: data.variants.map((v) => ({
             sku: v.sku,
             barcode: v.barcode,
-            attributes: v.attributes,
+            color: v.color,
+            size: v.size,
+            gender: v.gender,
             costPrice: v.costPrice,
             sellingPrice: v.sellingPrice,
             reorderLevel: v.reorderLevel ?? 10,
@@ -62,26 +48,22 @@ export class ProductService {
       });
     });
   }
-  async update(id: string, data: any) {
-    if (!data.name) {
-      throw new Error("Product name is required");
-    }
-
-    if (!data.variants?.length) {
-      throw new Error("At least one variant required");
-    }
-
-    // business logic
-
-    const existingProduct = await productRepository.findById(id);
+  async update(id: string, data: UpdateProductInput) {
+    const existingProduct = await prisma.product.findFirst({
+      where: {
+        id,
+        deletedAt: null,
+      },
+      select: {
+        id: true,
+      },
+    });
 
     if (!existingProduct) {
-      throw new Error("Product not found");
+      throw new AppError("Product not found", 404);
     }
 
-    // repository call
-
-    return productRepository.updateWithRelations(id, data);
+    return productRepository.update(id, data);
   }
   async delete(id: string) {
     return productRepository.softDelete(id);
@@ -126,40 +108,63 @@ export class ProductService {
           })
         : null;
 
-      let product = await prisma.product.findFirst({
+      const product = await prisma.product.upsert({
         where: { styleCode: row.STYLE_CODE },
+        update: {
+          name: row.PRODUCT_NAME,
+          categoryId: category.id,
+          brandId: brand?.id ?? null,
+          supplierId: supplier?.id ?? null,
+        },
+        create: {
+          styleCode: row.STYLE_CODE,
+          name: row.PRODUCT_NAME,
+          categoryId: category.id,
+          brandId: brand?.id ?? null,
+          supplierId: supplier?.id ?? null,
+        },
       });
-      if (!product) {
-        product = await prisma.product.create({
-          data: {
-            styleCode: row.STYLE_CODE,
-            name: row.PRODUCT_NAME,
-            categoryId: category.id,
-            brandId: brand?.id,
-            supplierId: supplier?.id,
-          },
-        });
-      }
 
-      const variant = await prisma.productVariant.create({
-        data: {
+      const variant = await prisma.productVariant.upsert({
+        where: { sku: row.SKU },
+        update: {
           productId: product.id,
-          sku: row.SKU,
-          barcode: row.BARCODE,
-          color: row.COLOR,
-          size: row.SIZE,
-          gender: row.GENDER,
-
+          barcode: row.BARCODE || null,
+          color: row.COLOR || null,
+          size: row.SIZE || null,
+          gender: row.GENDER || null,
           costPrice: row.COST_PRICE,
           sellingPrice: row.SELLING_PRICE,
+          reorderLevel: Number(row.REORDER_LEVEL) || 10,
+          deletedAt: null,
+        },
+        create: {
+          productId: product.id,
+          sku: row.SKU,
+          barcode: row.BARCODE || null,
+          color: row.COLOR || null,
+          size: row.SIZE || null,
+          gender: row.GENDER || null,
+          costPrice: row.COST_PRICE,
+          sellingPrice: row.SELLING_PRICE,
+          reorderLevel: Number(row.REORDER_LEVEL) || 10,
         },
       });
 
       const location = await prisma.location.findFirst();
 
       if (location) {
-        await prisma.stock.create({
-          data: {
+        await prisma.stock.upsert({
+          where: {
+            productVariantId_locationId: {
+              productVariantId: variant.id,
+              locationId: location.id,
+            },
+          },
+          update: {
+            quantity: Number(row.STOCK) || 0,
+          },
+          create: {
             productVariantId: variant.id,
             locationId: location.id,
             quantity: Number(row.STOCK) || 0,

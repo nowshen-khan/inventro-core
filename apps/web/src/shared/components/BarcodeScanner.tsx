@@ -9,14 +9,14 @@ export function BarcodeScanner({
   continuous?: boolean;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const readerRef = useRef<BrowserMultiFormatReader>();
+  const readerRef = useRef<BrowserMultiFormatReader | null>(null);
 
   useEffect(() => {
     if (!videoRef.current) return;
 
     const reader = new BrowserMultiFormatReader();
     readerRef.current = reader;
-    reader.decodeFromVideoDevice(null, videoRef.current!, (result, err) => {
+    reader.decodeFromVideoDevice(null, videoRef.current!, (result) => {
       if (result) {
         onScan(result.getText());
         if (!continuous) reader.reset();
@@ -30,7 +30,7 @@ export function BarcodeScanner({
   // USB scanner listener
   useEffect(() => {
     let buffer = "";
-    let timeout: NodeJS.Timeout;
+    let timeout: ReturnType<typeof setTimeout>;
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Enter") {
         if (buffer) onScan(buffer);

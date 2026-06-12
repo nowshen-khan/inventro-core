@@ -53,7 +53,7 @@ export default function TransferDetailsPage() {
 
         <Button variant="outline" onClick={() => window.print()}>
           <Download size={16} />
-          Export PDF
+          Print / Save PDF
         </Button>
       </div>
 

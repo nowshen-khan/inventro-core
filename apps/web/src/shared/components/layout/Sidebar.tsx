@@ -11,7 +11,7 @@ type SidebarProps = {
 };
 
 export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
-  const { data: permissions, isLoading } = usePermissions();
+  const { isLoading } = usePermissions();
 
   if (isLoading) {
     return (
@@ -33,8 +33,6 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
       </aside>
     );
   }
-
-  // console.log(permissions);
 
   return (
     <aside

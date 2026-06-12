@@ -50,9 +50,9 @@ export default function PurchaseDetailsPage() {
         </div>
 
         <div className="rounded-2xl bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-lg font-semibold">Branch</h2>
+          <h2 className="mb-4 text-lg font-semibold">Location</h2>
 
-          <p className="font-medium">{data.branch?.name}</p>
+          <p className="font-medium">{data.location?.name}</p>
         </div>
 
         <div className="rounded-2xl bg-white p-6 shadow-sm">

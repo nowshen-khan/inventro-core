@@ -20,30 +20,35 @@ interface Props {
   isLoading?: boolean;
 }
 
+type ProductFormValues = CreateProductInput;
+
+const emptyVariant = {
+  sku: "",
+  barcode: "",
+  color: "",
+  size: "",
+  gender: "MALE" as const,
+  costPrice: 0,
+  sellingPrice: 0,
+  reorderLevel: 10,
+};
+
+const toList = <T,>(value: { items?: T[] } | T[] | undefined | null): T[] =>
+  Array.isArray(value) ? value : value?.items ?? [];
+
 export function ProductForm({ defaultValues, onSubmit, isLoading }: Props) {
-  const form = useForm<CreateProductInput>({
-    resolver: zodResolver(createProductSchema),
+  const form = useForm<ProductFormValues>({
+    resolver: zodResolver(createProductSchema) as any,
 
     defaultValues: {
       name: "",
       styleCode: "",
       description: "",
       categoryId: "",
-      brandId: "",
-      supplierId: "",
+      brandId: undefined,
+      supplierId: undefined,
       imageUrls: [],
-      variants: [
-        {
-          sku: "",
-          barcode: "",
-          color: "",
-          size: "",
-          gender: "MALE",
-          costPrice: 0,
-          sellingPrice: 0,
-          reorderLevel: 5,
-        },
-      ],
+      variants: [emptyVariant],
     },
   });
 
@@ -57,11 +62,14 @@ export function ProductForm({ defaultValues, onSubmit, isLoading }: Props) {
         variants:
           defaultValues.variants?.map((variant: any) => ({
             ...variant,
+            barcode: variant.barcode ?? "",
+            color: variant.color ?? "",
+            size: variant.size ?? "",
             costPrice: Number(variant.costPrice) || 0,
             sellingPrice: Number(variant.sellingPrice) || 0,
             reorderLevel: Number(variant.reorderLevel) || 10,
-          })) || [],
-      });
+          })) || [emptyVariant],
+      } as ProductFormValues);
     }
   }, [defaultValues, reset]);
 
@@ -73,6 +81,9 @@ export function ProductForm({ defaultValues, onSubmit, isLoading }: Props) {
   const { data: categories } = useCategories();
   const { data: brands } = useBrands();
   const { data: suppliers } = useSuppliers();
+  const categoryOptions = toList(categories);
+  const brandOptions = toList(brands);
+  const supplierOptions = toList(suppliers);
 
   return (
     <form
@@ -124,7 +135,7 @@ export function ProductForm({ defaultValues, onSubmit, isLoading }: Props) {
           >
             <option value="">Select Category</option>
 
-            {categories?.map((category: any) => (
+            {categoryOptions.map((category: any) => (
               <option key={category.id} value={category.id}>
                 {category.name}
               </option>
@@ -136,12 +147,14 @@ export function ProductForm({ defaultValues, onSubmit, isLoading }: Props) {
           <label className="mb-2 block text-sm font-medium">Brand</label>
 
           <select
-            {...register("brandId")}
+            {...register("brandId", {
+              setValueAs: (value) => (value === "" ? undefined : value),
+            })}
             className="w-full rounded-lg border p-3"
           >
             <option value="">Select Brand</option>
 
-            {brands?.map((brand: any) => (
+            {brandOptions.map((brand: any) => (
               <option key={brand.id} value={brand.id}>
                 {brand.name}
               </option>
@@ -153,12 +166,14 @@ export function ProductForm({ defaultValues, onSubmit, isLoading }: Props) {
           <label className="mb-2 block text-sm font-medium">Supplier</label>
 
           <select
-            {...register("supplierId")}
+            {...register("supplierId", {
+              setValueAs: (value) => (value === "" ? undefined : value),
+            })}
             className="w-full rounded-lg border p-3"
           >
             <option value="">Select Supplier</option>
 
-            {suppliers?.map((supplier: any) => (
+            {supplierOptions.map((supplier: any) => (
               <option key={supplier.id} value={supplier.id}>
                 {supplier.name}
               </option>
@@ -185,7 +200,7 @@ export function ProductForm({ defaultValues, onSubmit, isLoading }: Props) {
                 gender: "MALE",
                 costPrice: 0,
                 sellingPrice: 0,
-                reorderLevel: 5,
+                reorderLevel: 10,
               })
             }
           >

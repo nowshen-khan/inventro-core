@@ -1,52 +1,36 @@
 import { Eye } from "lucide-react";
-
 import { useNavigate } from "react-router-dom";
-
 import type { ColumnDef } from "@tanstack/react-table";
-
 import { DataTable } from "@/shared/components/DataTable";
 import { Button } from "@/shared/components/ui/button";
 import { useStockAdjustments } from "@/features/inventory/stock-adjustments/hooks/useStockAdjustments";
 
 export default function StockAdjustmentsPage() {
   const navigate = useNavigate();
-
   const { data, isLoading } = useStockAdjustments();
 
   const columns: ColumnDef<any>[] = [
     {
       accessorKey: "adjustmentNo",
-
       header: "Adjustment No",
     },
-
     {
       accessorKey: "location.name",
-
       header: "Location",
     },
-
     {
       accessorKey: "createdAt",
-
       header: "Date",
-
       cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString(),
     },
-
     {
       accessorKey: "items",
-
       header: "Items",
-
       cell: ({ row }) => row.original.items?.length,
     },
-
     {
       id: "actions",
-
       header: "Actions",
-
       cell: ({ row }) => (
         <Button
           size="sm"

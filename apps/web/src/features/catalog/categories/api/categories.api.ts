@@ -6,8 +6,18 @@ import type {
   UpdateCategoryPayload,
 } from "@repo/types/common";
 
+export interface PaginatedCategories {
+  items: Category[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
 export const getCategories = (params?: CategoryFilters) =>
-  api.get("/categories", { params }).then((res) => res.data);
+  api.get<PaginatedCategories>("/categories", { params }).then((res) => res.data);
 
 export const getCategory = (id: string) =>
   api.get<Category>(`/categories/${id}`).then((res) => res.data);

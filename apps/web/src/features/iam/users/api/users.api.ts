@@ -1,5 +1,5 @@
 import api from "@/shared/api/client.api";
-import type { User } from "@repo/types/auth";
+import type { User } from "@repo/types/user";
 
 export const getUsers = (params?: any) =>
   api.get<User[]>("/users", { params }).then((res) => res.data);

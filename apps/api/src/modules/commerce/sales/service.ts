@@ -27,7 +27,7 @@ export class SaleService {
       const sale = await tx.sale.create({
         data: {
           invoiceNo,
-          branchId: data.branchId,
+          locationId: data.locationId,
           customerId: data.customerId,
           subtotal,
           tax,
@@ -43,7 +43,7 @@ export class SaleService {
         await this.inventoryService.decreaseStock(
           tx,
           item.productVariantId,
-          data.branchId,
+          data.locationId,
           data.locationId, // the POS is tied to a location
           item.quantity,
           "SALE",

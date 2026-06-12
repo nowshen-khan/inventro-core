@@ -1,12 +1,6 @@
 import { create } from "zustand";
 import { loginApi, logoutApi, getMe } from "@/features/auth/api/auth.api";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-}
+import type { User } from "@repo/types/user";
 
 interface AuthState {
   user: User | null;

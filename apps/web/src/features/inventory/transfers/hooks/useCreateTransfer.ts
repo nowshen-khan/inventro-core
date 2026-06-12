@@ -11,6 +11,9 @@ export const useCreateTransfer = () => {
       qc.invalidateQueries({
         queryKey: ["transfers"],
       });
+      qc.invalidateQueries({
+        queryKey: ["transfer-report"],
+      });
     },
   });
 };

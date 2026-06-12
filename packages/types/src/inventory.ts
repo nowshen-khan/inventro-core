@@ -4,7 +4,6 @@ import type { Location } from "./location";
 export interface Stock {
   id: string;
   productVariantId: string;
-  branchId: string;
   locationId: string;
   quantity: number;
   reservedQuantity: number;
