@@ -175,6 +175,8 @@ model ProductVariant {
 
   sellingPrice Decimal @db.Money
 
+  mrp Decimal @default(0) @db.Money
+
   reorderLevel Int @default(10)
 
   stocks               Stock[]
@@ -569,7 +571,6 @@ model Transfer {
   note           String?
   requestedBy    String?
   approvedBy     String?
-  requestedDate?: string;
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
   deletedAt      DateTime?

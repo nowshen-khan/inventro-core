@@ -30,11 +30,12 @@ const emptyVariant = {
   gender: "MALE" as const,
   costPrice: 0,
   sellingPrice: 0,
+  mrp: 0,
   reorderLevel: 10,
 };
 
 const toList = <T,>(value: { items?: T[] } | T[] | undefined | null): T[] =>
-  Array.isArray(value) ? value : value?.items ?? [];
+  Array.isArray(value) ? value : (value?.items ?? []);
 
 export function ProductForm({ defaultValues, onSubmit, isLoading }: Props) {
   const form = useForm<ProductFormValues>({
@@ -59,16 +60,16 @@ export function ProductForm({ defaultValues, onSubmit, isLoading }: Props) {
       reset({
         ...defaultValues,
 
-        variants:
-          defaultValues.variants?.map((variant: any) => ({
-            ...variant,
-            barcode: variant.barcode ?? "",
-            color: variant.color ?? "",
-            size: variant.size ?? "",
-            costPrice: Number(variant.costPrice) || 0,
-            sellingPrice: Number(variant.sellingPrice) || 0,
-            reorderLevel: Number(variant.reorderLevel) || 10,
-          })) || [emptyVariant],
+        variants: defaultValues.variants?.map((variant: any) => ({
+          ...variant,
+          barcode: variant.barcode ?? "",
+          color: variant.color ?? "",
+          size: variant.size ?? "",
+          costPrice: Number(variant.costPrice) || 0,
+          sellingPrice: Number(variant.sellingPrice) || 0,
+          mrp: Number(variant.mrp) || Number(variant.sellingPrice) || 0,
+          reorderLevel: Number(variant.reorderLevel) || 10,
+        })) || [emptyVariant],
       } as ProductFormValues);
     }
   }, [defaultValues, reset]);
@@ -200,6 +201,7 @@ export function ProductForm({ defaultValues, onSubmit, isLoading }: Props) {
                 gender: "MALE",
                 costPrice: 0,
                 sellingPrice: 0,
+                mrp: 0,
                 reorderLevel: 10,
               })
             }
@@ -264,6 +266,16 @@ export function ProductForm({ defaultValues, onSubmit, isLoading }: Props) {
                   valueAsNumber: true,
                 })}
                 placeholder="Selling Price"
+                className="rounded-lg border p-3"
+              />
+
+              <Input
+                type="number"
+                step="0.01"
+                {...register(`variants.${index}.mrp`, {
+                  valueAsNumber: true,
+                })}
+                placeholder="MRP"
                 className="rounded-lg border p-3"
               />
 

@@ -33,6 +33,7 @@ export default function ProductFormPage() {
         gender: variant.gender ?? "MALE",
         costPrice: Number(variant.costPrice) || 0,
         sellingPrice: Number(variant.sellingPrice) || 0,
+        mrp: Number(variant.mrp) || Number(variant.sellingPrice) || 0,
         reorderLevel: Number(variant.reorderLevel) || 10,
       })),
     };

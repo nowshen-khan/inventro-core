@@ -44,7 +44,6 @@ export class SaleService {
           tx,
           item.productVariantId,
           data.locationId,
-          data.locationId, // the POS is tied to a location
           item.quantity,
           "SALE",
           sale.id,

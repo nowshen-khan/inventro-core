@@ -16,9 +16,9 @@ export class ProductService {
     return productRepository.findById(id);
   }
 
-  async create(data: CreateProductInput) {
+  async create(data: CreateProductInput, userId?: string) {
     return prisma.$transaction(async (tx) => {
-      return productRepository.create(tx, {
+      const product = await productRepository.create(tx, {
         name: data.name,
         description: data.description,
         categoryId: data.categoryId,
@@ -35,6 +35,7 @@ export class ProductService {
             gender: v.gender,
             costPrice: v.costPrice,
             sellingPrice: v.sellingPrice,
+            mrp: v.mrp,
             reorderLevel: v.reorderLevel ?? 10,
           })),
         },
@@ -43,12 +44,27 @@ export class ProductService {
               create: data.imageUrls.map((url) => ({
                 url,
               })),
-            }
+          }
           : undefined,
       });
+
+      await this.audit(
+        tx,
+        "PRODUCT_CREATED",
+        product.id,
+        null,
+        {
+          name: product.name,
+          styleCode: product.styleCode,
+          variants: product.variants.length,
+        },
+        userId,
+      );
+
+      return product;
     });
   }
-  async update(id: string, data: UpdateProductInput) {
+  async update(id: string, data: UpdateProductInput, userId?: string) {
     const existingProduct = await prisma.product.findFirst({
       where: {
         id,
@@ -63,10 +79,74 @@ export class ProductService {
       throw new AppError("Product not found", 404);
     }
 
-    return productRepository.update(id, data);
+    return prisma.$transaction(async (tx) => {
+      const before = await tx.product.findUniqueOrThrow({
+        where: { id },
+        include: {
+          category: true,
+          brand: true,
+          supplier: true,
+          variants: true,
+          images: true,
+        },
+      });
+
+      const updated = await productRepository.update(tx, id, data);
+
+      await this.audit(
+        tx,
+        "PRODUCT_UPDATED",
+        id,
+        {
+          name: before.name,
+          styleCode: before.styleCode,
+          variants: before.variants.length,
+        },
+        {
+          name: updated?.name,
+          styleCode: updated?.styleCode,
+          variants: updated?.variants?.length,
+        },
+        userId,
+      );
+
+      return updated;
+    });
   }
-  async delete(id: string) {
-    return productRepository.softDelete(id);
+  async delete(id: string, userId?: string) {
+    const product = await prisma.product.findFirst({
+      where: {
+        id,
+        deletedAt: null,
+      },
+      include: {
+        variants: true,
+        images: true,
+      },
+    });
+
+    const result = await productRepository.softDelete(id);
+
+    if (product) {
+      await prisma.auditLog.create({
+        data: {
+          action: "PRODUCT_DELETED",
+          entity: "Product",
+          entityId: product.id,
+          oldValue: {
+            name: product.name,
+            styleCode: product.styleCode,
+            variants: product.variants.length,
+          },
+          newValue: {
+            deletedAt: new Date().toISOString(),
+          },
+          userId: userId || "system",
+        },
+      });
+    }
+
+    return result;
   }
   async findByBarcode(barcode: string) {
     const variant = await productRepository.findByBarcode(barcode);
@@ -74,7 +154,7 @@ export class ProductService {
     return variant;
   }
 
-  async importProducts(file: any) {
+  async importProducts(file: any, userId?: string) {
     const buffer = await file.toBuffer();
 
     const workbook = XLSX.read(buffer, { type: "buffer" });
@@ -135,6 +215,7 @@ export class ProductService {
           gender: row.GENDER || null,
           costPrice: row.COST_PRICE,
           sellingPrice: row.SELLING_PRICE,
+          mrp: row.MRP || row.SELLING_PRICE,
           reorderLevel: Number(row.REORDER_LEVEL) || 10,
           deletedAt: null,
         },
@@ -147,6 +228,7 @@ export class ProductService {
           gender: row.GENDER || null,
           costPrice: row.COST_PRICE,
           sellingPrice: row.SELLING_PRICE,
+          mrp: row.MRP || row.SELLING_PRICE,
           reorderLevel: Number(row.REORDER_LEVEL) || 10,
         },
       });
@@ -171,6 +253,22 @@ export class ProductService {
           },
         });
       }
+
+      await prisma.auditLog.create({
+        data: {
+          action: "PRODUCT_IMPORTED",
+          entity: "Product",
+          entityId: product.id,
+          oldValue: null,
+          newValue: {
+            styleCode: product.styleCode,
+            sku: variant.sku,
+            barcode: variant.barcode,
+            mrp: variant.mrp,
+          },
+          userId: userId || "system",
+        },
+      });
     }
 
     return {
@@ -248,6 +346,8 @@ export class ProductService {
 
           GENDER: variant.gender,
 
+          MRP: variant.mrp,
+
           SKU: variant.sku,
 
           BARCODE: variant.barcode,
@@ -272,5 +372,32 @@ export class ProductService {
 
   async posSearch(search?: string) {
     return productRepository.posSearch(search);
+  }
+
+  async getAuditLogs(id: string) {
+    return prisma.auditLog.findMany({
+      where: { entity: "Product", entityId: id },
+      orderBy: { createdAt: "desc" },
+    });
+  }
+
+  private async audit(
+    tx: any,
+    action: string,
+    entityId: string,
+    oldValue: any,
+    newValue: any,
+    userId?: string,
+  ) {
+    await tx.auditLog.create({
+      data: {
+        action,
+        entity: "Product",
+        entityId,
+        oldValue,
+        newValue,
+        userId: userId || "system",
+      },
+    });
   }
 }

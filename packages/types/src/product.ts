@@ -39,6 +39,7 @@ export interface ProductVariant {
   attributes?: Record<string, string>;
   costPrice: number;
   sellingPrice: number;
+  mrp: number;
   reorderLevel: number;
   stocks: ProductStock[];
   createdAt?: string;

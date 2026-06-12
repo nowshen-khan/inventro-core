@@ -8,6 +8,7 @@ export const variantSchema = z.object({
   gender: z.enum(["MALE", "FEMALE", "UNISEX", "BOYS", "GIRLS", "KIDS"]),
   costPrice: z.number(),
   sellingPrice: z.number(),
+  mrp: z.number().positive(),
   reorderLevel: z.number().int().default(10),
 });
 

@@ -1,4 +1,5 @@
 import api from "@/shared/api/client.api";
+import type { AuditLog } from "@repo/types/audit";
 import type { Product, ProductFilters } from "@repo/types/product";
 import type {
   CreateProductInput,
@@ -55,4 +56,9 @@ export const posSearchProducts = (search: string) =>
         search,
       },
     })
+    .then((res) => res.data);
+
+export const getProductAuditLogs = (id: string) =>
+  api
+    .get<AuditLog[]>(`/products/${id}/audit-logs`)
     .then((res) => res.data);

@@ -125,12 +125,15 @@ export const productRepository = {
     });
   },
 
-  update(id: string, data: any) {
-    return prisma.$transaction(async (tx) => {
-      // update product
-      await tx.product.update({
-        where: { id },
+  update(txOrId: any, maybeId?: any, maybeData?: any) {
+    const hasTx = typeof txOrId === "object" && typeof maybeId === "string";
+    const client = hasTx ? txOrId : prisma;
+    const id = hasTx ? maybeId : txOrId;
+    const data = hasTx ? maybeData : maybeId;
 
+    const run = async () => {
+      await client.product.update({
+        where: { id },
         data: {
           ...(data.name !== undefined ? { name: data.name } : {}),
           ...(data.styleCode !== undefined ? { styleCode: data.styleCode } : {}),
@@ -148,7 +151,7 @@ export const productRepository = {
       });
 
       if (Array.isArray(data.variants)) {
-        const existingVariants = await tx.productVariant.findMany({
+        const existingVariants = await client.productVariant.findMany({
           where: {
             productId: id,
             deletedAt: null,
@@ -163,7 +166,7 @@ export const productRepository = {
           const existing = existingBySku.get(variant.sku);
 
           if (existing) {
-            await tx.productVariant.update({
+            await client.productVariant.update({
               where: { id: existing.id },
               data: {
                 barcode: variant.barcode || null,
@@ -172,12 +175,13 @@ export const productRepository = {
                 gender: variant.gender || null,
                 costPrice: variant.costPrice,
                 sellingPrice: variant.sellingPrice,
+                mrp: variant.mrp,
                 reorderLevel: variant.reorderLevel ?? 10,
                 deletedAt: null,
               },
             });
           } else {
-            await tx.productVariant.create({
+            await client.productVariant.create({
               data: {
                 productId: id,
                 sku: variant.sku,
@@ -187,42 +191,40 @@ export const productRepository = {
                 gender: variant.gender || null,
                 costPrice: variant.costPrice,
                 sellingPrice: variant.sellingPrice,
+                mrp: variant.mrp,
                 reorderLevel: variant.reorderLevel ?? 10,
               },
             });
           }
         }
 
-        if (incomingSkus.size > 0) {
-          const removedVariants = existingVariants.filter(
-            (variant) => !incomingSkus.has(variant.sku),
-          );
+        const removedVariants = existingVariants.filter(
+          (variant) => !incomingSkus.has(variant.sku),
+        );
 
-          for (const variant of removedVariants) {
-            await tx.productVariant.update({
-              where: { id: variant.id },
-              data: {
-                sku: `${variant.sku}_deleted_${Date.now()}`,
-                barcode: variant.barcode
-                  ? `${variant.barcode}_deleted_${Date.now()}`
-                  : null,
-                deletedAt: new Date(),
-              },
-            });
-          }
+        for (const variant of removedVariants) {
+          await client.productVariant.update({
+            where: { id: variant.id },
+            data: {
+              sku: `${variant.sku}_deleted_${Date.now()}`,
+              barcode: variant.barcode
+                ? `${variant.barcode}_deleted_${Date.now()}`
+                : null,
+              deletedAt: new Date(),
+            },
+          });
         }
       }
 
-      // replace images
       if (data.imageUrls !== undefined) {
-        await tx.productImage.deleteMany({
+        await client.productImage.deleteMany({
           where: {
             productId: id,
           },
         });
 
         if (data.imageUrls.length) {
-          await tx.productImage.createMany({
+          await client.productImage.createMany({
             data: data.imageUrls.map((url: string) => ({
               productId: id,
               url,
@@ -231,7 +233,7 @@ export const productRepository = {
         }
       }
 
-      return tx.product.findUnique({
+      return client.product.findUnique({
         where: { id },
         include: {
           category: true,
@@ -245,7 +247,9 @@ export const productRepository = {
           images: true,
         },
       });
-    });
+    };
+
+    return hasTx ? run() : prisma.$transaction(run);
   },
 
   softDelete(id: string) {
@@ -298,7 +302,13 @@ export const productRepository = {
           styleCode: `${product.styleCode}_deleted_${Date.now()}`,
         },
       });
-    });
+    };
+
+    if (hasTx) {
+      return run(tx);
+    }
+
+    return prisma.$transaction(async (tx) => run(tx));
   },
 
   findByBarcode(barcode: string) {

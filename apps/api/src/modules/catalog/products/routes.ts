@@ -24,12 +24,6 @@ export async function productRoutes(app: FastifyInstance) {
     ctrl.exportProducts,
   );
 
-  app.get(
-    "/barcode/:barcode",
-    { preHandler: authorize("product:view") },
-    ctrl.getByBarcode,
-  );
-
   app.get("/", { preHandler: authorize("product:view") }, ctrl.getAll);
 
   app.get(
@@ -38,6 +32,17 @@ export async function productRoutes(app: FastifyInstance) {
       preHandler: authorize("sale:create"),
     },
     ctrl.posSearch,
+  );
+  app.get(
+    "/:id/audit-logs",
+    { preHandler: authorize("product:view") },
+    ctrl.auditLogs,
+  );
+
+  app.get(
+    "/barcode/:barcode",
+    { preHandler: authorize("product:view") },
+    ctrl.getByBarcode,
   );
 
   app.get("/:id", { preHandler: authorize("product:view") }, ctrl.getById);

@@ -1,6 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/shared/components/ui/button";
 import { Link } from "react-router-dom";
+import { History } from "lucide-react";
 import { useDeleteProduct } from "../hooks/useDeleteProduct";
 import type { Product } from "@repo/types/product";
 
@@ -27,6 +28,12 @@ function ProductActionsCell({ product }: { product: Product }) {
         </Button>
       </Link>
 
+      <Link to={`/products/${product.id}/audit-logs`}>
+        <Button size="sm" variant="outline">
+          <History className="h-4 w-4" />
+        </Button>
+      </Link>
+
       <Button size="sm" variant="destructive" onClick={handleDelete}>
         Delete
       </Button>
@@ -49,7 +56,13 @@ export const columns: ColumnDef<Product>[] = [
   {
     accessorFn: (row) => row.variants?.[0]?.sellingPrice,
 
-    header: "Price",
+    header: "Selling Price",
+    cell: ({ getValue }) => `$${getValue()}`,
+  },
+
+  {
+    accessorFn: (row) => row.variants?.[0]?.mrp,
+    header: "MRP",
     cell: ({ getValue }) => `$${getValue()}`,
   },
 

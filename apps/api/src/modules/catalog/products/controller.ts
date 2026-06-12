@@ -20,14 +20,18 @@ export class ProductController {
   }
 
   async create(req: FastifyRequest, reply: FastifyReply) {
-    reply.status(201).send(await service.create(req.body));
+    reply.status(201).send(await service.create(req.body, req.user.userId));
   }
 
   async update(
     req: FastifyRequest<{ Params: { id: string } }>,
     reply: FastifyReply,
   ) {
-    const result = await service.update(req.params.id, req.body);
+    const result = await service.update(
+      req.params.id,
+      req.body,
+      req.user.userId,
+    );
     reply.status(200).send({ success: true, data: result });
   }
 
@@ -35,7 +39,7 @@ export class ProductController {
     req: FastifyRequest<{ Params: { id: string } }>,
     reply: FastifyReply,
   ) {
-    await service.delete(req.params.id);
+    await service.delete(req.params.id, req.user.userId);
     reply.status(204).send();
   }
 
@@ -53,9 +57,16 @@ export class ProductController {
       return reply.badRequest("File is required");
     }
 
-    const result = await service.importProducts(file);
+    const result = await service.importProducts(file, req.user.userId);
 
     reply.send(result);
+  }
+
+  async auditLogs(
+    req: FastifyRequest<{ Params: { id: string } }>,
+    reply: FastifyReply,
+  ) {
+    reply.send(await service.getAuditLogs(req.params.id));
   }
 
   async exportProducts(
